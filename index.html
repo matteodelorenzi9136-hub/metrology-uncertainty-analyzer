@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Metrology Uncertainty Analyzer V7.2</title>
+<title>Metrology Uncertainty Analyzer V7.3</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -27,18 +26,16 @@
 html,body{
  margin:0;
  padding:0;
- width:100%;
  min-height:100%;
- overflow-x:hidden
+ background:var(--bg);
+ color:var(--text);
+ font-family:Inter,system-ui,Arial,sans-serif;
 }
 
-body{
- font-family:Inter,system-ui,Arial,sans-serif;
- background:var(--bg);
- color:var(--text)
-}
+body{overflow-x:hidden}
 
 button,input,select,textarea{font:inherit}
+
 button{cursor:pointer}
 
 .app{
@@ -51,7 +48,9 @@ button{cursor:pointer}
  background:#0b1425;
  border-right:1px solid var(--line);
  position:fixed;
- inset:0 auto 0 0;
+ left:0;
+ top:0;
+ bottom:0;
  padding:22px 14px;
  z-index:20
 }
@@ -92,6 +91,7 @@ button{cursor:pointer}
 }
 
 .page{display:none}
+
 .page.active{display:block}
 
 .top{
@@ -102,20 +102,11 @@ button{cursor:pointer}
  margin-bottom:22px
 }
 
-h1{
- margin:0;
- font-size:28px
-}
+h1{margin:0;font-size:28px}
 
-h2{
- margin:0 0 14px;
- font-size:18px
-}
+h2{margin:0 0 14px;font-size:18px}
 
-h3{
- margin:0 0 10px;
- font-size:15px
-}
+h3{margin:0 0 10px}
 
 p{color:var(--muted)}
 
@@ -145,18 +136,6 @@ p{color:var(--muted)}
  background:var(--good);
  border-color:var(--good);
  color:#06101f
-}
-
-.btn.warn{
- background:var(--warn);
- border-color:var(--warn);
- color:#161006
-}
-
-.btn.danger{
- background:#482329;
- border-color:#7c3037;
- color:#fff
 }
 
 .panel{
@@ -229,8 +208,8 @@ textarea:focus{
 }
 
 textarea{
- resize:vertical;
- min-height:150px
+ min-height:150px;
+ resize:vertical
 }
 
 .actions{
@@ -249,7 +228,7 @@ textarea{
 table{
  width:100%;
  border-collapse:collapse;
- min-width:720px
+ min-width:700px
 }
 
 th,td{
@@ -260,25 +239,6 @@ th,td{
 }
 
 th{color:var(--muted)}
-
-.badge{
- display:inline-block;
- padding:4px 8px;
- border-radius:99px;
- font-size:11px;
- background:#163b31;
- color:var(--good)
-}
-
-.badge.warn{
- background:#49391b;
- color:var(--warn)
-}
-
-.badge.bad{
- background:#482329;
- color:var(--bad)
-}
 
 .empty{
  padding:35px;
@@ -305,55 +265,6 @@ th{color:var(--muted)}
  margin-top:5px
 }
 
-.chart-grid{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:16px
-}
-
-.chartbox{
- height:300px;
- position:relative
-}
-
-.influence{
- border:1px solid var(--line);
- background:#0d1728;
- border-radius:10px;
- padding:12px;
- margin-bottom:9px
-}
-
-.influence label{
- display:flex;
- gap:10px;
- align-items:flex-start
-}
-
-.influence input[type=checkbox]{
- width:auto;
- margin-top:3px
-}
-
-.influence small{
- display:block;
- color:var(--muted);
- margin-top:4px
-}
-
-.influence .params{
- display:grid;
- grid-template-columns:repeat(4,minmax(0,1fr));
- gap:8px;
- margin-top:10px
-}
-
-.influence .params input,
-.influence .params select{
- padding:8px;
- font-size:12px
-}
-
 .ai-box{
  border:1px solid #365da0;
  background:#0d1b33;
@@ -362,22 +273,59 @@ th{color:var(--muted)}
  margin-bottom:15px
 }
 
+.source{
+ border:1px solid var(--line);
+ background:#0d1728;
+ border-radius:10px;
+ padding:13px;
+ margin-bottom:9px
+}
+
+.source-grid{
+ display:grid;
+ grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:8px;
+ margin-top:10px
+}
+
+.source-grid input{
+ padding:8px;
+ font-size:12px
+}
+
 .result-good{
- border:1px solid #276c55;
+ border-color:#276c55;
  background:#0d2b23
 }
 
 .result-warn{
- border:1px solid #806321;
+ border-color:#806321;
  background:#302713
 }
 
 .result-bad{
- border:1px solid #7c3037;
+ border-color:#7c3037;
  background:#32171b
 }
 
-.hidden{display:none!important}
+.badge{
+ display:inline-block;
+ padding:4px 8px;
+ border-radius:99px;
+ font-size:11px;
+ background:#163b31;
+ color:var(--good)
+}
+
+.badge.warn{
+ background:#49391b;
+ color:var(--warn)
+}
+
+.badge.bad{
+ background:#482329;
+ color:var(--bad)
+}
 
 .modal{
  position:fixed;
@@ -402,20 +350,6 @@ th{color:var(--muted)}
  padding:22px
 }
 
-.validation-pass{
- border-left:5px solid var(--good);
- background:#0d2b23;
- padding:12px;
- border-radius:8px
-}
-
-.validation-fail{
- border-left:5px solid var(--bad);
- background:#32171b;
- padding:12px;
- border-radius:8px
-}
-
 .version{
  position:fixed;
  right:10px;
@@ -425,7 +359,6 @@ th{color:var(--muted)}
  border-radius:12px;
  background:#182238;
  border:1px solid var(--line);
- color:#fff;
  font-size:11px
 }
 
@@ -433,13 +366,6 @@ th{color:var(--muted)}
  font-size:12px;
  color:var(--muted);
  line-height:1.5
-}
-
-.section-title{
- display:flex;
- justify-content:space-between;
- align-items:center;
- gap:10px
 }
 
 .verification-head{
@@ -486,15 +412,12 @@ th{color:var(--muted)}
   grid-template-columns:1fr 1fr
  }
 
- .chart-grid{
+ .grid,
+ .grid3{
   grid-template-columns:1fr
  }
 
- .grid,.grid3{
-  grid-template-columns:1fr
- }
-
- .influence .params{
+ .source-grid{
   grid-template-columns:1fr 1fr
  }
 }
@@ -511,8 +434,8 @@ th{color:var(--muted)}
  h1{font-size:23px}
 
  .top{
-  align-items:flex-start;
-  flex-direction:column
+  flex-direction:column;
+  align-items:flex-start
  }
 
  .top .btn{
@@ -523,7 +446,7 @@ th{color:var(--muted)}
   width:100%
  }
 
- .influence .params{
+ .source-grid{
   grid-template-columns:1fr
  }
 }
@@ -532,7 +455,7 @@ th{color:var(--muted)}
 
 <body>
 
-<div class="version">V7.2</div>
+<div class="version">V7.3</div>
 
 <div class="app">
 
@@ -638,9 +561,8 @@ Analisi dell'incertezza di misura per master di collaudo
 <h1>Master di collaudo</h1>
 
 <div class="subtitle">
-Un master può avere verifiche indipendenti e immutabili
+Un master può avere verifiche indipendenti
 </div>
-
 </div>
 
 <button class="btn primary" onclick="openMasterModal()">
@@ -679,7 +601,7 @@ oninput="renderMasters()">
 <h1>Nuova verifica</h1>
 
 <div class="subtitle">
-Flusso: Master → dati → misure → fonti → calcolo → salvataggio
+Master → misure → AI → budget → risultato → salvataggio
 </div>
 
 </div>
@@ -687,10 +609,14 @@ Flusso: Master → dati → misure → fonti → calcolo → salvataggio
 </div>
 
 <div class="verification-head" id="selectedMasterBanner">
+
 Nessun master selezionato.
-Vai in Master e premi “＋ Nuova verifica”.
+Vai in Master e premi "＋ Nuova verifica".
+
 </div>
 
+
+<!-- IDENTIFICAZIONE -->
 
 <div class="panel">
 
@@ -708,7 +634,6 @@ Vai in Master e premi “＋ Nuova verifica”.
 
 </div>
 
-
 <div class="field">
 
 <label>Misurando</label>
@@ -717,7 +642,6 @@ Vai in Master e premi “＋ Nuova verifica”.
 
 </div>
 
-
 <div class="field">
 
 <label>Unità</label>
@@ -725,7 +649,6 @@ Vai in Master e premi “＋ Nuova verifica”.
 <input id="aUnit">
 
 </div>
-
 
 <div class="field">
 
@@ -738,7 +661,6 @@ step="any">
 
 </div>
 
-
 <div class="field">
 
 <label>Limite macchina / criterio</label>
@@ -750,10 +672,9 @@ step="any">
 
 </div>
 
-
 <div class="field">
 
-<label>Ripetizioni richieste</label>
+<label>Numero ripetizioni</label>
 
 <input
 id="aRepetitions"
@@ -768,6 +689,8 @@ value="10">
 </div>
 
 
+<!-- DATI SPECIFICI -->
+
 <div class="panel">
 
 <h2>2. Dati specifici del misurando</h2>
@@ -776,6 +699,8 @@ value="10">
 
 </div>
 
+
+<!-- MISURE -->
 
 <div class="panel">
 
@@ -786,40 +711,55 @@ id="aValues"
 placeholder="Un valore per riga oppure separati da spazio, virgola o punto e virgola"></textarea>
 
 <div class="note">
-La ripetibilità Type A viene calcolata dalla deviazione standard della serie:
-uA = s / √N.
+La ripetibilità Type A viene ricavata automaticamente dalla serie di misure.
 </div>
 
 </div>
 
+
+<!-- AI -->
 
 <div class="panel">
 
-<div class="section-title">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
 
-<h2>4. Fonti di influenza</h2>
+<h2>4. 🤖 Analisi automatica delle fonti</h2>
 
-<button class="btn" id="suggestInfluences">
-✨ Suggerisci fonti
+<button
+class="btn primary"
+id="runAIAnalysis">
+
+🤖 Analizza e calcola fonti
+
 </button>
 
 </div>
 
 <div class="ai-box">
 
-<strong>Motore esperto locale</strong>
+<strong>AI Metrology Engine</strong>
 
 <p>
-Le proposte sono regole metrologiche, non un LLM remoto.
-Il metrologo deve confermare le fonti realmente applicabili.
+Il motore analizza il misurando, i dati tecnici disponibili
+e le misure. Seleziona le fonti pertinenti e calcola
+automaticamente le incertezze standard.
+</p>
+
+<p class="note">
+Non inventa valori mancanti. Se manca un dato necessario,
+lo segnala.
 </p>
 
 </div>
 
-<div id="influenceList"></div>
+<div id="aiDataFields"></div>
+
+<div id="aiSourceSummary"></div>
 
 </div>
 
+
+<!-- MODELLO -->
 
 <div class="panel">
 
@@ -830,43 +770,72 @@ Il metrologo deve confermare le fonti realmente applicabili.
 </div>
 
 
+<!-- CORRELAZIONI -->
+
 <div class="panel">
 
 <h2>6. Correlazioni</h2>
 
 <p class="note">
-Le correlazioni vengono applicate tramite il termine di covarianza:
-2ρ cᵢ cⱼ uᵢ uⱼ.
+Inserire una correlazione solo quando due grandezze
+d'ingresso non sono indipendenti.
 </p>
 
 <div id="correlations"></div>
 
+<button
+class="btn"
+id="addCorrelation">
+
+＋ Aggiungi correlazione
+
+</button>
+
 </div>
 
+
+<!-- ACTIONS -->
+
+<div class="panel">
 
 <div class="actions">
 
-<button class="btn primary" id="calculate">
-Calcola analisi
+<button
+class="btn primary"
+id="calculate">
+
+🔎 Calcola analisi
+
 </button>
 
-<button class="btn good" id="saveVerification" disabled>
-Salva verifica
+<button
+class="btn good"
+id="saveVerification"
+disabled>
+
+💾 Salva verifica
+
 </button>
 
-<button class="btn" id="generatePDF" disabled>
-Genera PDF
+<button
+class="btn"
+id="generatePDF"
+disabled>
+
+📄 PDF
+
 </button>
 
 </div>
 
+</div>
 
 <div id="analysisResult"></div>
 
 </section>
 
 
-<!-- STORICO -->
+<!-- HISTORY -->
 
 <section id="history" class="page">
 
@@ -904,13 +873,17 @@ Ogni verifica salvata è uno snapshot indipendente.
 <h1>Validation Center</h1>
 
 <div class="subtitle">
-Test matematici interni del software.
+Test interni del motore statistico e del calcolo GUM semplificato.
 </div>
 
 </div>
 
-<button class="btn primary" onclick="runValidation()">
-Esegui validation
+<button
+class="btn primary"
+onclick="runValidation()">
+
+▶ Esegui validazione
+
 </button>
 
 </div>
@@ -942,9 +915,11 @@ Esegui validation
 <div class="panel">
 
 <div id="validationResult">
+
 <div class="empty">
-Premi “Esegui validation”.
+Premi "Esegui validazione".
 </div>
+
 </div>
 
 </div>
@@ -960,35 +935,45 @@ Premi “Esegui validation”.
 
 <div>
 
-<h1>Metrology Assistant</h1>
+<h1>Metrology AI Engine</h1>
 
 <div class="subtitle">
-Supporto deterministico alla selezione delle fonti d'incertezza.
+Assistente tecnico locale per fonti di influenza e criticità.
 </div>
 
 </div>
 
-<button class="btn primary" onclick="runAI()">
-Analizza configurazione
+</div>
+
+<div class="panel">
+
+<div class="ai-box">
+
+<h2>AI Advisory</h2>
+
+<p>
+La V7.3 utilizza un motore esperto locale deterministico.
+Non invia dati a un servizio AI esterno.
+</p>
+
+<button
+class="btn primary"
+onclick="runAI()">
+
+🧠 Analizza configurazione corrente
+
 </button>
 
 </div>
 
-<div id="aiResult">
-
-<div class="panel">
-
-<div class="empty">
-Configura una verifica e avvia l'assistente.
-</div>
-
-</div>
+<div id="aiResult"></div>
 
 </div>
 
 </section>
 
 </main>
+
 </div>
 
 
@@ -998,26 +983,19 @@ Configura una verifica e avvia l'assistente.
 
 <div class="dialog">
 
-<div class="section-title">
-
-<h2>Nuovo master</h2>
-
-<button class="btn" onclick="closeMasterModal()">
-✕
-</button>
-
-</div>
+<h2>Nuovo master di collaudo</h2>
 
 <div class="grid">
 
 <div class="field">
 
-<label>ID Master</label>
+<label>ID / Matricola</label>
 
-<input id="mId" placeholder="MASTER-001">
+<input
+id="mId"
+placeholder="MASTER-001">
 
 </div>
-
 
 <div class="field">
 
@@ -1029,7 +1007,6 @@ placeholder="Master diametro">
 
 </div>
 
-
 <div class="field">
 
 <label>Macchina</label>
@@ -1040,7 +1017,6 @@ placeholder="FT-001">
 
 </div>
 
-
 <div class="field">
 
 <label>Misurando</label>
@@ -1048,7 +1024,6 @@ placeholder="FT-001">
 <select id="mMeasurand"></select>
 
 </div>
-
 
 <div class="field">
 
@@ -1060,10 +1035,9 @@ placeholder="mm">
 
 </div>
 
-
 <div class="field">
 
-<label>Riferimento</label>
+<label>Valore riferimento</label>
 
 <input
 id="mReference"
@@ -1072,15 +1046,15 @@ step="any">
 
 </div>
 
-
 <div class="field">
 
-<label>Limite</label>
+<label>Limite macchina</label>
 
 <input
 id="mLimit"
 type="number"
-step="any">
+step="any"
+placeholder="es. 0.010">
 
 </div>
 
@@ -1088,393 +1062,378 @@ step="any">
 
 <div class="actions">
 
-<button class="btn" onclick="closeMasterModal()">
+<button
+class="btn"
+onclick="closeMasterModal()">
+
 Annulla
+
 </button>
 
-<button class="btn primary" onclick="createMaster()">
-Crea master
+<button
+class="btn primary"
+onclick="saveMaster()">
+
+Salva master
+
 </button>
 
 </div>
 
 </div>
+
 </div>
 
 
 <script>
 
-const MASTER_KEY="MUA_V72_MASTERS";
-const HISTORY_KEY="MUA_V72_HISTORY";
+/* =====================================================
+   STORAGE
+===================================================== */
 
-let masters=JSON.parse(localStorage.getItem(MASTER_KEY)||"[]");
-let history=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
+const MASTER_KEY="MUA_V73_MASTERS";
+const HISTORY_KEY="MUA_V73_HISTORY";
+
+let masters=load(MASTER_KEY);
+let history=load(HISTORY_KEY);
 
 let lastAnalysis=null;
+
+let aiComponents=[];
+let aiMissing=[];
+let aiSources=[];
+
 let correlations=[];
-let charts={};
 
 
-/* =========================
-   UTILITIES
-========================= */
+function load(key){
+
+ try{
+
+  const x=
+   JSON.parse(localStorage.getItem(key)||"[]");
+
+  return Array.isArray(x)?x:[];
+
+ }catch(e){
+
+  return [];
+
+ }
+
+}
+
 
 function store(key,value){
- localStorage.setItem(key,JSON.stringify(value));
+
+ localStorage.setItem(
+  key,
+  JSON.stringify(value)
+ );
+
 }
+
 
 function esc(v){
+
  return String(v??"")
-  .replace(/&/g,"&amp;")
-  .replace(/</g,"&lt;")
-  .replace(/>/g,"&gt;")
-  .replace(/"/g,"&quot;")
-  .replace(/'/g,"&#039;");
+ .replace(/&/g,"&amp;")
+ .replace(/</g,"&lt;")
+ .replace(/>/g,"&gt;")
+ .replace(/"/g,"&quot;")
+ .replace(/'/g,"&#39;");
+
 }
 
-function num(v){
- const n=Number(v);
- return Number.isFinite(n)?n:null;
-}
 
 function fmt(v,d=6){
+
  return Number.isFinite(Number(v))
-  ? Number(v).toFixed(d).replace(/\.?0+$/,"")
-  : "—";
+ ?Number(v)
+  .toFixed(d)
+  .replace(/\.?0+$/,"")
+ :"—";
+
 }
 
 
-/* =========================
-   MEASURANDS
-========================= */
+function uid(prefix){
+
+ return prefix+
+ "-" +
+ Date.now().toString(36)+
+ "-" +
+ Math.random()
+ .toString(36)
+ .slice(2,7);
+
+}
+
+
+/* =====================================================
+   MISURANDI
+===================================================== */
 
 const MEASURANDS={
 
- diameter:"Diametro",
- internal_diameter:"Diametro interno",
- external_diameter:"Diametro esterno",
- length:"Lunghezza",
- width:"Larghezza",
- thickness:"Spessore",
- height:"Altezza",
- depth:"Profondità",
- distance:"Distanza",
- center_distance:"Interasse",
- radius:"Raggio",
- pitch:"Passo",
+ "Geometria dimensionale":[
 
- angle:"Angolo",
- taper:"Conicità",
+  ["diameter","Diametro","mm"],
+  ["internal_diameter","Diametro interno","mm"],
+  ["external_diameter","Diametro esterno","mm"],
+  ["length","Lunghezza","mm"],
+  ["width","Larghezza","mm"],
+  ["thickness","Spessore","mm"],
+  ["height","Altezza","mm"],
+  ["depth","Profondità","mm"],
+  ["distance","Distanza","mm"],
+  ["center_distance","Interasse","mm"],
+  ["radius","Raggio","mm"],
+  ["pitch","Passo","mm"]
 
- flatness:"Planarità",
- straightness:"Rettitudine",
- circularity:"Circolarità",
- cylindricity:"Cilindricità",
- parallelism:"Parallelismo",
- perpendicularity:"Perpendicolarità",
- concentricity:"Concentricità",
- coaxiality:"Coassialità",
- symmetry:"Simmetria",
- position:"Posizione",
- runout:"Battimento",
+ ],
 
- roughness:"Rugosità",
+ "Tolleranze geometriche":[
 
- mass:"Massa",
- force:"Forza",
+  ["concentricity","Concentricità","mm"],
+  ["coaxiality","Coassialità","mm"],
+  ["perpendicularity","Perpendicolarità","mm"],
+  ["parallelism","Parallelismo","mm"],
+  ["flatness","Planarità","mm"],
+  ["straightness","Rettitudine","mm"],
+  ["circularity","Circolarità","mm"],
+  ["cylindricity","Cilindricità","mm"],
+  ["symmetry","Simmetria","mm"],
+  ["position","Posizione","mm"],
+  ["runout","Battimento","mm"]
 
- torque_wrench:"Coppia chiave dinamometrica",
- torque_driver:"Coppia cacciavite dinamometrico",
- torque_transducer:"Coppia trasduttore",
+ ],
 
- pressure:"Pressione",
- pressure_drop:"Perdita / caduta di pressione",
+ "Angoli":[
 
- temperature:"Temperatura",
- humidity:"Umidità",
+  ["angle","Angolo","°"],
+  ["taper","Conicità","°"]
 
- time:"Tempo",
- frequency:"Frequenza",
+ ],
 
- default:"Grandezza generica"
+ "Superficie":[
+
+  ["roughness","Rugosità","µm"]
+
+ ],
+
+ "Massa e forza":[
+
+  ["mass","Massa","g"],
+  ["force","Forza","N"],
+  ["torque_wrench","Coppia chiave dinamometrica","N·m"],
+  ["torque_driver","Coppia avvitatore","N·m"],
+  ["torque_transducer","Coppia trasduttore","N·m"]
+
+ ],
+
+ "Grandezza ambientale":[
+
+  ["temperature","Temperatura","°C"],
+  ["humidity","Umidità relativa","%"],
+  ["pressure","Pressione","bar"],
+  ["pressure_drop","Perdita di pressione","bar"]
+
+ ],
+
+ "Tempo":[
+
+  ["time","Tempo","s"],
+  ["frequency","Frequenza","Hz"]
+
+ ],
+
+ "Altro":[
+
+  ["generic","Grandezza generica",""]
+
+ ]
 
 };
 
 
-/* =========================
-   MEASUREMENT MODELS
-========================= */
+function allMeasurands(){
+
+ return Object
+ .entries(MEASURANDS)
+ .flatMap(
+  ([family,list])=>
+   list.map(x=>({
+    family,
+    id:x[0],
+    name:x[1],
+    unit:x[2]
+   }))
+ );
+
+}
+
+
+function measInfo(id){
+
+ return allMeasurands()
+ .find(x=>x.id===id)
+ ||
+ {
+  id,
+  name:id,
+  unit:"",
+  family:"Altro"
+ };
+
+}
+
+
+function fillMeasurandSelect(id,selected=""){
+
+ const el=document.getElementById(id);
+
+ if(!el)return;
+
+ el.innerHTML=
+  '<option value="">Seleziona misurando</option>'+
+  Object
+  .entries(MEASURANDS)
+  .map(
+   ([family,list])=>
+   `<optgroup label="${esc(family)}">${
+    list.map(x=>
+     `<option value="${x[0]}"
+      ${x[0]===selected?"selected":""}>
+      ${esc(x[1])}
+      </option>`
+    ).join("")
+   }</optgroup>`
+  )
+  .join("");
+
+}
+
+
+fillMeasurandSelect("mMeasurand");
+fillMeasurandSelect("aMeasurand");
+
+
+/* =====================================================
+   MODELLI
+===================================================== */
 
 const MODEL_META={
 
- diameter:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- internal_diameter:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- external_diameter:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- length:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- width:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- thickness:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- height:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- depth:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- distance:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- center_distance:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- radius:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- pitch:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- angle:{
-  text:"y = x",
-  sensitivity:{x:1}
- },
-
- taper:{
-  text:"y = x",
-  sensitivity:{x:1}
+ pressure_drop:{
+  text:"y = P_upstream − P_downstream"
  },
 
  torque_wrench:{
-  text:"y = T_indicated",
-  sensitivity:{x:1}
+  text:"y = T_indicato"
  },
 
  torque_driver:{
-  text:"y = T_indicated",
-  sensitivity:{x:1}
+  text:"y = T_indicato"
  },
 
  torque_transducer:{
-  text:"y = T_transducer",
-  sensitivity:{x:1}
+  text:"y = T_trasduttore"
+ },
+
+ temperature:{
+  text:"y = T"
  },
 
  pressure:{
-  text:"y = P",
-  sensitivity:{x:1}
- },
-
- pressure_drop:{
-  text:"y = P_upstream − P_downstream",
-  sensitivity:{
-   P_upstream:1,
-   P_downstream:-1
-  }
+  text:"y = P"
  },
 
  mass:{
-  text:"y = m",
-  sensitivity:{x:1}
+  text:"y = m"
  },
 
  force:{
-  text:"y = F",
-  sensitivity:{x:1}
- },
-
- temperature:{
-  text:"y = T",
-  sensitivity:{x:1}
- },
-
- humidity:{
-  text:"y = RH",
-  sensitivity:{x:1}
+  text:"y = F"
  },
 
  time:{
-  text:"y = t",
-  sensitivity:{x:1}
+  text:"y = t"
  },
 
  frequency:{
-  text:"y = f",
-  sensitivity:{x:1}
+  text:"y = f"
  },
 
- default:{
-  text:"y = x",
-  sensitivity:{x:1}
+ generic:{
+  text:"y = x"
  }
 
 };
 
 
-/* =========================
-   INFLUENCES
-========================= */
+function renderModel(){
 
-const INFLUENCES={
+ const id=
+  document.getElementById("aMeasurand").value;
 
- repeatability:{
-  name:"Ripetibilità",
-  type:"A",
-  method:"s / √N",
-  df:"auto"
- },
+ const model=
+  MODEL_META[id]||
+  {
+   text:"y = x"
+  };
 
- resolution:{
-  name:"Risoluzione strumento",
-  type:"B",
-  method:"Risoluzione / √12",
-  df:Infinity
- },
+ document.getElementById("modelBox").innerHTML=`
 
- calibration:{
-  name:"Certificato di taratura",
-  type:"B",
-  method:"U / k",
-  df:Infinity
- },
+ <div class="ai-box">
 
- temperature:{
-  name:"Temperatura",
-  type:"B",
-  method:"valutazione termica",
-  df:Infinity
- },
+ <strong>Modello di misura</strong>
 
- alignment:{
-  name:"Allineamento",
-  type:"B",
-  method:"stima limite / √3",
-  df:Infinity
- },
+ <p style="font-size:18px;color:white">
 
- form:{
-  name:"Forma / geometria",
-  type:"B",
-  method:"stima limite / √3",
-  df:Infinity
- },
+ ${esc(model.text)}
 
- contamination:{
-  name:"Contaminazione",
-  type:"B",
-  method:"stima limite / √3",
-  df:Infinity
- },
+ </p>
 
- hysteresis:{
-  name:"Isteresi",
-  type:"B",
-  method:"ampiezza / √3",
-  df:Infinity
- },
+ <p class="note">
 
- force_application:{
-  name:"Applicazione della forza",
-  type:"B",
-  method:"stima limite / √3",
-  df:Infinity
- },
+ Il modello deve rappresentare il processo reale.
+ La V7.3 utilizza modelli espliciti e semplificati.
 
- load_direction:{
-  name:"Direzione del carico",
-  type:"B",
-  method:"stima limite / √3",
-  df:Infinity
- },
+ </p>
 
- pressure_stability:{
-  name:"Stabilità pressione",
-  type:"B",
-  method:"stima limite / √3",
-  df:Infinity
- },
+ </div>`;
 
- leakage:{
-  name:"Perdite / leakage",
-  type:"B",
-  method:"stima limite / √3",
-  df:Infinity
- },
-
- ambient_gradient:{
-  name:"Gradiente ambientale",
-  type:"B",
-  method:"stima limite / √3",
-  df:Infinity
- },
-
- sensor_drift:{
-  name:"Deriva sensore",
-  type:"B",
-  method:"stima limite / √3",
-  df:Infinity
- },
-
- tool_setting:{
-  name:"Impostazione utensile",
-  type:"B",
-  method:"stima limite / √3",
-  df:Infinity
- }
-
-};
+}
 
 
-/* =========================
+/* =====================================================
    NAVIGATION
-========================= */
+===================================================== */
 
-document.querySelectorAll(".nav button").forEach(btn=>{
+document
+.querySelectorAll(".nav button")
+.forEach(btn=>{
 
  btn.addEventListener("click",()=>{
 
-  document.querySelectorAll(".nav button")
-   .forEach(x=>x.classList.remove("active"));
+  document
+  .querySelectorAll(".nav button")
+  .forEach(x=>
+   x.classList.remove("active")
+  );
 
   btn.classList.add("active");
 
-  document.querySelectorAll(".page")
-   .forEach(x=>x.classList.remove("active"));
+  document
+  .querySelectorAll(".page")
+  .forEach(x=>
+   x.classList.remove("active")
+  );
 
-  document.getElementById(btn.dataset.page)
-   .classList.add("active");
+  document
+  .getElementById(btn.dataset.page)
+  .classList.add("active");
 
   if(btn.dataset.page==="masters")
    renderMasters();
@@ -1492,93 +1451,163 @@ document.querySelectorAll(".nav button").forEach(btn=>{
 
 function openPage(page){
 
- document.querySelectorAll(".nav button")
-  .forEach(x=>{
-   x.classList.toggle("active",x.dataset.page===page)
-  });
+ const b=
+  document.querySelector(
+   `.nav button[data-page="${page}"]`
+  );
 
- document.querySelectorAll(".page")
-  .forEach(x=>{
-   x.classList.toggle("active",x.id===page)
-  });
+ if(b)b.click();
 
 }
 
 
-/* =========================
+/* =====================================================
    MASTER
-========================= */
+===================================================== */
 
 function openMasterModal(){
 
- document.getElementById("masterModal")
-  .classList.add("show");
+ document
+ .getElementById("masterModal")
+ .classList.add("show");
 
 }
+
 
 function closeMasterModal(){
 
- document.getElementById("masterModal")
-  .classList.remove("show");
+ document
+ .getElementById("masterModal")
+ .classList.remove("show");
 
 }
 
-function createMaster(){
 
- const id=document.getElementById("mId").value.trim();
+function clearMasterModal(){
 
- if(!id){
-  alert("Inserisci l'ID del master.");
+ [
+  "mId",
+  "mDescription",
+  "mMachine",
+  "mUnit",
+  "mReference",
+  "mLimit"
+ ]
+ .forEach(id=>
+  document.getElementById(id).value=""
+ );
+
+ document.getElementById("mMeasurand").value="";
+
+}
+
+
+function numOrNull(id){
+
+ const value=
+  document.getElementById(id).value;
+
+ return value===""?null:Number(value);
+
+}
+
+
+function saveMaster(){
+
+ const id=
+  document.getElementById("mId")
+  .value
+  .trim();
+
+ const description=
+  document.getElementById("mDescription")
+  .value
+  .trim();
+
+ const machine=
+  document.getElementById("mMachine")
+  .value
+  .trim();
+
+ const measurand=
+  document.getElementById("mMeasurand")
+  .value;
+
+ if(!id||!measurand){
+
+  alert(
+   "Inserisci almeno ID e misurando."
+  );
+
   return;
+
  }
 
- if(masters.some(x=>x.id===id)){
-  alert("Esiste già un master con questo ID.");
+ if(
+  masters.some(
+   m=>m.id===id
+  )
+ ){
+
+  alert(
+   "Esiste già un master con questo ID."
+  );
+
   return;
+
  }
+
+ const info=
+  measInfo(measurand);
 
  const master={
 
   id,
 
-  description:
-   document.getElementById("mDescription").value.trim(),
+  description,
 
-  machine:
-   document.getElementById("mMachine").value.trim(),
+  machine,
 
-  measurand:
-   document.getElementById("mMeasurand").value,
+  measurand,
 
   measurandName:
-   MEASURANDS[
-    document.getElementById("mMeasurand").value
-   ] || "",
+   info.name,
 
   unit:
-   document.getElementById("mUnit").value.trim(),
+   document.getElementById("mUnit")
+   .value
+   .trim() ||
+   info.unit,
 
   reference:
-   num(document.getElementById("mReference").value),
+   numOrNull("mReference"),
 
   limit:
-   num(document.getElementById("mLimit").value),
+   numOrNull("mLimit"),
 
-  createdAt:new Date().toISOString()
+  createdAt:
+   new Date().toISOString()
 
  };
 
  masters.push(master);
 
- store(MASTER_KEY,masters);
+ store(
+  MASTER_KEY,
+  masters
+ );
 
  closeMasterModal();
 
- renderMasters();
- populateAnalysisMasters();
+ clearMasterModal();
+
  refreshDashboard();
 
- alert("Master creato correttamente.");
+ renderMasters();
+
+ alert(
+  "Master salvato. Ora puoi creare una nuova verifica."
+ );
 
  openPage("masters");
 
@@ -1587,31 +1616,40 @@ function createMaster(){
 
 function renderMasters(){
 
- const q=(
-  document.getElementById("masterSearch")?.value||""
- ).toLowerCase();
+ const q=
+  (
+   document
+   .getElementById("masterSearch")
+   ?.value ||
+   ""
+  )
+  .toLowerCase();
 
- const rows=masters.filter(m=>
-  `${m.id} ${m.description} ${m.measurandName}`
+ const rows=
+  masters.filter(m=>
+   `${m.id} ${m.description} ${m.measurandName}`
    .toLowerCase()
    .includes(q)
- );
+  );
 
- const box=document.getElementById("masterTable");
+ const box=
+  document.getElementById("masterTable");
 
  if(!rows.length){
 
   box.innerHTML=`
+
   <div class="empty">
 
   Nessun master inserito.
 
   <br><br>
 
-  <button class="btn primary"
-  onclick="openMasterModal()">
+  <button
+   class="btn primary"
+   onclick="openMasterModal()">
 
-  ＋ Inserisci il primo master
+   ＋ Inserisci il primo master
 
   </button>
 
@@ -1630,7 +1668,6 @@ function renderMasters(){
  <thead>
 
  <tr>
-
  <th>ID</th>
  <th>Descrizione</th>
  <th>Macchina</th>
@@ -1639,7 +1676,6 @@ function renderMasters(){
  <th>Limite</th>
  <th>Verifiche</th>
  <th>Azione</th>
-
  </tr>
 
  </thead>
@@ -1648,8 +1684,12 @@ function renderMasters(){
 
  ${rows.map(m=>{
 
-  const count=
-   history.filter(v=>v.masterId===m.id).length;
+  const n=
+   history
+   .filter(
+    v=>v.masterId===m.id
+   )
+   .length;
 
   return `
 
@@ -1659,11 +1699,17 @@ function renderMasters(){
    <strong>${esc(m.id)}</strong>
   </td>
 
-  <td>${esc(m.description||"—")}</td>
+  <td>
+   ${esc(m.description||"—")}
+  </td>
 
-  <td>${esc(m.machine||"—")}</td>
+  <td>
+   ${esc(m.machine||"—")}
+  </td>
 
-  <td>${esc(m.measurandName||"—")}</td>
+  <td>
+   ${esc(m.measurandName)}
+  </td>
 
   <td>
    ${fmt(m.reference)}
@@ -1671,19 +1717,22 @@ function renderMasters(){
   </td>
 
   <td>
-   ${fmt(m.limit)}
-   ${esc(m.unit||"")}
+   ${
+    m.limit===null
+    ?"—"
+    :fmt(m.limit)+" "+esc(m.unit)
+   }
   </td>
 
   <td>
-   <strong>${count}</strong>
+   <strong>${n}</strong>
   </td>
 
   <td>
 
    <button
     class="btn primary"
-    onclick="startVerification('${esc(m.id)}')">
+    onclick="startVerification('${encodeURIComponent(m.id)}')">
 
     ＋ Nuova verifica
 
@@ -1706,275 +1755,486 @@ function renderMasters(){
 }
 
 
-/* =========================
-   NEW VERIFICATION
-========================= */
+/* =====================================================
+   VERIFICATION
+===================================================== */
 
-function populateAnalysisMasters(){
+function populateAnalysisMasters(selected=""){
 
- const select=document.getElementById("aMaster");
+ const s=
+  document.getElementById("aMaster");
 
- const old=select.value;
+ s.innerHTML=
+  '<option value="">Seleziona master</option>'+
+  masters
+  .map(
+   m=>
+   `<option
+    value="${esc(m.id)}"
+    ${m.id===selected?"selected":""}>
 
- select.innerHTML=
-  `<option value="">Seleziona master</option>`+
-  masters.map(m=>
-   `<option value="${esc(m.id)}">
-    ${esc(m.id)} — ${esc(m.description||"")}
+    ${esc(m.id)}
+    —
+    ${esc(m.description||m.measurandName)}
+
    </option>`
-  ).join("");
-
- if(masters.some(m=>m.id===old))
-  select.value=old;
+  )
+  .join("");
 
 }
 
 
-function startVerification(masterId){
+function startVerification(encodedId){
 
- const master=masters.find(m=>m.id===masterId);
+ const id=
+  decodeURIComponent(encodedId);
 
- if(!master){
+ const m=
+  masters.find(
+   x=>x.id===id
+  );
+
+ if(!m){
+
   alert("Master non trovato.");
+
   return;
+
  }
 
  openPage("analysis");
 
  document.getElementById("aMaster").value=
-  master.id;
+  m.id;
+
+ loadMasterIntoAnalysis(m);
+
+ window.scrollTo({
+  top:0,
+  behavior:"smooth"
+ });
+
+}
+
+
+function loadMasterIntoAnalysis(m){
+
+ document.getElementById("aMaster").value=
+  m.id;
 
  document.getElementById("aMeasurand").value=
-  master.measurand;
+  m.measurand;
 
  document.getElementById("aUnit").value=
-  master.unit||"";
+  m.unit||"";
 
  document.getElementById("aReference").value=
-  master.reference??"";
+  m.reference??"";
 
  document.getElementById("aLimit").value=
-  master.limit??"";
-
- document.getElementById("aValues").value="";
+  m.limit??"";
 
  document.getElementById("selectedMasterBanner").innerHTML=`
+
  <strong>Master selezionato:</strong>
- ${esc(master.id)}
+
+ ${esc(m.id)}
  —
- ${esc(master.description||"")}
+ ${esc(m.description||"")}
+
  <br>
+
  <span class="note">
- ${esc(master.machine||"")} ·
- ${esc(master.measurandName||"")}
+
+ ${esc(m.measurandName)}
+ ·
+ ${esc(m.machine||"")}
+
  </span>
+
  `;
 
  renderSpecificFields();
- renderInfluences();
+
+ renderAIDataFields();
+
  renderModel();
+
  renderCorrelations();
 
  lastAnalysis=null;
 
- document.getElementById("saveVerification").disabled=true;
- document.getElementById("generatePDF").disabled=true;
+ aiComponents=[];
+ aiMissing=[];
+ aiSources=[];
+ correlations=[];
+
  document.getElementById("analysisResult").innerHTML="";
 
-}
+ document.getElementById("saveVerification").disabled=true;
 
-
-document.getElementById("aMaster")
- .addEventListener("change",()=>{
-
-  const id=document.getElementById("aMaster").value;
-
-  if(!id){
-   resetNewVerification();
-   return;
-  }
-
-  startVerification(id);
-
- });
-
-
-/* =========================
-   MEASURAND SELECTS
-========================= */
-
-function populateMeasurands(){
-
- const options=Object.entries(MEASURANDS)
-  .map(([id,name])=>
-   `<option value="${id}">${esc(name)}</option>`
-  ).join("");
-
- document.getElementById("mMeasurand").innerHTML=options;
-
- document.getElementById("aMeasurand").innerHTML=options;
+ document.getElementById("generatePDF").disabled=true;
 
 }
 
-document.getElementById("aMeasurand")
- .addEventListener("change",()=>{
+
+document
+.getElementById("aMaster")
+.addEventListener(
+ "change",
+ ()=>{
+
+  const m=
+   masters.find(
+    x=>
+     x.id===
+     document.getElementById("aMaster").value
+   );
+
+  if(m)
+   loadMasterIntoAnalysis(m);
+
+ }
+);
+
+
+document
+.getElementById("aMeasurand")
+.addEventListener(
+ "change",
+ ()=>{
+
+  const info=
+   measInfo(
+    document.getElementById("aMeasurand").value
+   );
+
+  if(
+   !document
+   .getElementById("aUnit")
+   .value
+  )
+   document
+   .getElementById("aUnit")
+   .value=
+   info.unit;
 
   renderSpecificFields();
-  renderInfluences();
+
+  renderAIDataFields();
+
   renderModel();
 
- });
+  aiComponents=[];
+  aiMissing=[];
+  aiSources=[];
+  correlations=[];
+
+  document
+  .getElementById("aiSourceSummary")
+  .innerHTML="";
+
+  renderCorrelations();
+
+ }
+);
 
 
-/* =========================
+/* =====================================================
    SPECIFIC FIELDS
-========================= */
+===================================================== */
 
 function renderSpecificFields(){
 
- const id=document.getElementById("aMeasurand").value;
+ const id=
+  document.getElementById("aMeasurand").value;
 
- const box=document.getElementById("specificFields");
+ let h="";
 
- if(id.startsWith("torque_")){
+ if(
+  [
+   "torque_wrench",
+   "torque_driver",
+   "torque_transducer"
+  ].includes(id)
+ ){
 
-  box.innerHTML=`
+  h=`
 
   <div class="grid3">
 
    <div class="field">
     <label>Coppia nominale</label>
-    <input id="specificNominal" type="number" step="any">
+    <input id="spec_nominal"
+     type="number" step="any">
    </div>
 
    <div class="field">
-    <label>Campo strumento</label>
-    <input id="specificRange" placeholder="es. 20–200 N·m">
+    <label>Campo chiave / trasduttore</label>
+    <input id="spec_range"
+     type="number" step="any">
    </div>
 
    <div class="field">
     <label>Direzione carico</label>
-    <select id="specificDirection">
+
+    <select id="spec_direction">
+
      <option>Oraria</option>
      <option>Antioraria</option>
      <option>Entrambe</option>
+
     </select>
+
+   </div>
+
+   <div class="field">
+    <label>Punto applicazione forza</label>
+    <input id="spec_forcepoint"
+     type="number" step="any">
+   </div>
+
+   <div class="field">
+    <label>Isteresi</label>
+    <input id="spec_hysteresis"
+     type="number" step="any">
+   </div>
+
+   <div class="field">
+    <label>Temperatura test</label>
+    <input id="spec_temp"
+     type="number" step="any">
    </div>
 
   </div>`;
 
-  return;
  }
 
- if(id==="pressure_drop"){
+ else if(id==="pressure_drop"){
 
-  box.innerHTML=`
+  h=`
 
   <div class="grid3">
 
    <div class="field">
     <label>Pressione upstream</label>
-    <input id="upstream" type="number" step="any">
+    <input id="spec_up"
+     type="number" step="any">
    </div>
 
    <div class="field">
     <label>Pressione downstream</label>
-    <input id="downstream" type="number" step="any">
+    <input id="spec_down"
+     type="number" step="any">
    </div>
 
    <div class="field">
     <label>Stabilità pressione</label>
-    <input id="pressureStability" type="number" step="any">
-   </div>
-
-  </div>
-
-  <p class="note">
-   Modello: ΔP = P upstream − P downstream.
-  </p>`;
-
-  return;
- }
-
- if(id==="pressure"){
-
-  box.innerHTML=`
-
-  <div class="grid">
-
-   <div class="field">
-    <label>Pressione nominale</label>
-    <input id="pressureNominal" type="number" step="any">
+    <input id="spec_stability"
+     type="number" step="any">
    </div>
 
    <div class="field">
-    <label>Stabilità</label>
-    <input id="pressureStability" type="number" step="any">
+    <label>Leakage</label>
+    <input id="spec_leakage"
+     type="number" step="any">
+   </div>
+
+   <div class="field">
+    <label>Temperatura</label>
+    <input id="spec_temp"
+     type="number" step="any">
+   </div>
+
+   <div class="field">
+    <label>Punti di misura</label>
+    <input id="spec_points"
+     type="number"
+     step="1"
+     min="1">
    </div>
 
   </div>`;
 
-  return;
  }
 
- if(id==="roughness"){
+ else if(id==="pressure"){
 
-  box.innerHTML=`
+  h=`
+
+  <div class="grid3">
+
+   <div class="field">
+    <label>Pressione di riferimento</label>
+    <input id="spec_refp"
+     type="number" step="any">
+   </div>
+
+   <div class="field">
+    <label>Stabilità</label>
+    <input id="spec_stability"
+     type="number" step="any">
+   </div>
+
+   <div class="field">
+    <label>Temperatura</label>
+    <input id="spec_temp"
+     type="number" step="any">
+   </div>
+
+  </div>`;
+
+ }
+
+ else if(id==="roughness"){
+
+  h=`
 
   <div class="grid3">
 
    <div class="field">
     <label>Cut-off</label>
-    <input id="roughnessCutoff" type="number" step="any">
+    <input id="spec_cutoff"
+     type="number" step="any">
    </div>
 
    <div class="field">
     <label>Lunghezza valutazione</label>
-    <input id="roughnessLength" type="number" step="any">
+    <input id="spec_eval"
+     type="number" step="any">
    </div>
 
    <div class="field">
     <label>Parametro</label>
-    <select id="roughnessParameter">
+
+    <select id="spec_param">
+
      <option>Ra</option>
      <option>Rz</option>
      <option>Rq</option>
+
     </select>
+
    </div>
 
   </div>`;
 
-  return;
  }
 
- box.innerHTML=`
+ else{
 
- <div class="field">
+  h=`
 
-  <label>Note specifiche</label>
+  <div class="grid3">
 
-  <input
-   id="specificNote"
-   placeholder="Eventuali informazioni aggiuntive">
+   <div class="field">
+    <label>Valore nominale / caratteristica</label>
+    <input id="spec_nominal"
+     type="number" step="any">
+   </div>
 
- </div>`;
+   <div class="field">
+    <label>Tolleranza</label>
+    <input id="spec_tol"
+     type="number" step="any">
+   </div>
+
+   <div class="field">
+    <label>Metodo / attrezzatura</label>
+    <input id="spec_method">
+   </div>
+
+  </div>`;
+
+ }
+
+ document
+ .getElementById("specificFields")
+ .innerHTML=h;
 
 }
 
 
-/* =========================
-   INFLUENCE RULES
-========================= */
+/* =====================================================
+   AI DATA INPUTS
+===================================================== */
 
-function recommendedInfluences(id){
+function renderAIDataFields(){
 
- const base=[
-  "repeatability",
-  "resolution",
-  "calibration"
- ];
+ const id=
+  document
+  .getElementById("aMeasurand")
+  .value;
 
- if([
+ const box=
+  document.getElementById("aiDataFields");
+
+ let h="";
+
+ h+=`
+
+ <div class="grid">
+
+ <div class="field">
+
+ <label>
+ Risoluzione strumento
+ </label>
+
+ <input
+  id="ai_resolution"
+  type="number"
+  step="any"
+  placeholder="es. 0.001">
+
+ </div>
+
+ <div class="field">
+
+ <label>
+ U certificato di taratura
+ </label>
+
+ <input
+  id="ai_cal_U"
+  type="number"
+  step="any"
+  placeholder="es. 0.004">
+
+ </div>
+
+ <div class="field">
+
+ <label>
+ k certificato
+ </label>
+
+ <input
+  id="ai_cal_k"
+  type="number"
+  step="any"
+  value="2">
+
+ </div>
+
+ <div class="field">
+
+ <label>
+ ν certificato
+ </label>
+
+ <input
+  id="ai_cal_df"
+  type="number"
+  step="any"
+  value="50">
+
+ </div>
+
+ </div>`;
+
+ const dimensional=[
+
   "diameter",
   "internal_diameter",
   "external_diameter",
@@ -1987,451 +2247,1243 @@ function recommendedInfluences(id){
   "center_distance",
   "radius",
   "pitch"
- ].includes(id)){
 
-  base.push("temperature");
-  base.push("alignment");
- }
+ ];
 
- if(id.startsWith("torque_")){
+ if(dimensional.includes(id)){
 
-  base.push("hysteresis");
-  base.push("force_application");
-  base.push("load_direction");
-  base.push("tool_setting");
+  h+=`
+
+  <div class="grid3">
+
+   <div class="field">
+
+    <label>
+    ΔT rispetto alla temperatura di riferimento
+    </label>
+
+    <input
+     id="ai_deltaT"
+     type="number"
+     step="any"
+     placeholder="es. 2">
+
+   </div>
+
+   <div class="field">
+
+    <label>
+    Coefficiente di dilatazione α
+    </label>
+
+    <input
+     id="ai_alpha"
+     type="number"
+     step="any"
+     placeholder="es. 11.5e-6 /°C">
+
+   </div>
+
+   <div class="field">
+
+    <label>
+    Limite allineamento ±
+    </label>
+
+    <input
+     id="ai_alignment"
+     type="number"
+     step="any"
+     placeholder="opzionale">
+
+   </div>
+
+  </div>`;
 
  }
 
  if(id==="pressure_drop"){
 
-  base.push("pressure_stability");
-  base.push("leakage");
- }
+  h+=`
 
- if(id==="pressure"){
+  <div class="grid3">
 
-  base.push("pressure_stability");
-  base.push("leakage");
- }
+   <div class="field">
+    <label>U upstream</label>
+    <input id="ai_up_U"
+     type="number"
+     step="any">
+   </div>
 
- return [...new Set(base)];
+   <div class="field">
+    <label>U downstream</label>
+    <input id="ai_down_U"
+     type="number"
+     step="any">
+   </div>
 
-}
+   <div class="field">
+    <label>k pressione</label>
+    <input id="ai_pressure_k"
+     type="number"
+     step="any"
+     value="2">
+   </div>
 
+   <div class="field">
+    <label>Stabilità ΔP ±</label>
+    <input id="ai_dp_stability"
+     type="number"
+     step="any">
+   </div>
 
-function renderInfluences(){
+   <div class="field">
+    <label>Leakage / deriva ±</label>
+    <input id="ai_dp_leak"
+     type="number"
+     step="any">
+   </div>
 
- const box=document.getElementById("influenceList");
-
- const id=document.getElementById("aMeasurand").value;
-
- const selected=recommendedInfluences(id);
-
- box.innerHTML=Object.entries(INFLUENCES)
- .map(([key,info])=>{
-
-  const checked=selected.includes(key);
-
-  return `
-
-  <div class="influence">
-
-  <label>
-
-  <input
-   type="checkbox"
-   class="influence-check"
-   data-key="${key}"
-   ${checked?"checked":""}>
-
-  <span>
-
-   <strong>${esc(info.name)}</strong>
-
-   <small>
-   Tipo ${info.type} · ${esc(info.method)}
-   </small>
-
-  </span>
-
-  </label>
-
-  <div class="params">
-
-   <input
-    data-param="${key}-value"
-    type="number"
-    step="any"
-    placeholder="Valore">
-
-   <input
-    data-param="${key}-uncertainty"
-    type="number"
-    step="any"
-    placeholder="U certificato / limite">
-
-   <input
-    data-param="${key}-k"
-    type="number"
-    step="any"
-    placeholder="k">
-
-   <input
-    data-param="${key}-df"
-    type="number"
-    step="any"
-    placeholder="df">
-
-  </div>
+   <div class="field">
+    <label>U comune alternativa</label>
+    <input id="ai_dp_commonU"
+     type="number"
+     step="any">
+   </div>
 
   </div>`;
 
- }).join("");
+ }
 
-}
+ if(
+  id==="torque_wrench"||
+  id==="torque_driver"||
+  id==="torque_transducer"
+ ){
 
+  h+=`
 
-document.getElementById("suggestInfluences")
- .addEventListener("click",()=>{
+  <div class="grid3">
 
-  renderInfluences();
+   <div class="field">
+    <label>U certificato coppia</label>
+    <input id="ai_torque_U"
+     type="number"
+     step="any">
+   </div>
 
-  alert(
-   "Fonti suggerite in base al misurando. "+
-   "Verifica e modifica manualmente quelle realmente applicabili."
-  );
+   <div class="field">
+    <label>k coppia</label>
+    <input id="ai_torque_k"
+     type="number"
+     step="any"
+     value="2">
+   </div>
 
- });
+   <div class="field">
+    <label>Campo / fondo scala</label>
+    <input id="ai_torque_range"
+     type="number"
+     step="any">
+   </div>
 
+   <div class="field">
+    <label>Isteresi ±</label>
+    <input id="ai_hysteresis"
+     type="number"
+     step="any">
+   </div>
 
-function selectedInfluences(){
+   <div class="field">
+    <label>Applicazione carico ±</label>
+    <input id="ai_force_app"
+     type="number"
+     step="any">
+   </div>
 
- return [...document.querySelectorAll(".influence-check:checked")]
-  .map(x=>x.dataset.key);
+   <div class="field">
+    <label>Temperatura ±</label>
+    <input id="ai_torque_temp"
+     type="number"
+     step="any">
+   </div>
 
-}
+  </div>`;
 
+ }
 
-/* =========================
-   MODEL
-========================= */
+ if(id==="temperature"){
 
-function renderModel(){
+  h+=`
 
- const id=document.getElementById("aMeasurand").value;
+  <div class="grid3">
 
- const model=MODEL_META[id]||MODEL_META.default;
+   <div class="field">
+    <label>Stabilità temperatura ±</label>
+    <input id="ai_temp_stability"
+     type="number"
+     step="any">
+   </div>
 
- document.getElementById("modelBox").innerHTML=`
+   <div class="field">
+    <label>Deriva sensore ±</label>
+    <input id="ai_temp_drift"
+     type="number"
+     step="any">
+   </div>
 
- <div class="ai-box">
+   <div class="field">
+    <label>Gradiente ambiente ±</label>
+    <input id="ai_temp_gradient"
+     type="number"
+     step="any">
+   </div>
 
- <strong>Modello selezionato</strong>
+  </div>`;
 
- <p style="font-size:18px;color:white">
- ${esc(model.text)}
- </p>
+ }
+
+ h+=`
 
  <p class="note">
- I coefficienti di sensibilità sono applicati alle
- componenti del budget.
- </p>
 
- </div>`;
+ I dati vengono utilizzati dall'AI come input
+ fisici/documentali. Il motore non inventa dati.
 
-}
+ </p>`;
 
-
-/* =========================
-   CORRELATIONS
-========================= */
-
-function renderCorrelations(){
-
- const box=document.getElementById("correlations");
-
- const selected=selectedInfluences();
-
- if(selected.length<2){
-
-  box.innerHTML=`
-  <div class="empty">
-   Seleziona almeno due fonti per definire una correlazione.
-  </div>`;
-
-  return;
- }
-
- let html="";
-
- for(let i=0;i<selected.length;i++){
-
-  for(let j=i+1;j<selected.length;j++){
-
-   const a=selected[i];
-   const b=selected[j];
-
-   const existing=
-    correlations.find(x=>x.a===a&&x.b===b);
-
-   html+=`
-
-   <div class="grid3"
-   style="margin-bottom:8px">
-
-   <div class="field">
-    <label>${esc(INFLUENCES[a].name)}</label>
-    <input value="${esc(INFLUENCES[a].name)}" disabled>
-   </div>
-
-   <div class="field">
-    <label>${esc(INFLUENCES[b].name)}</label>
-    <input value="${esc(INFLUENCES[b].name)}" disabled>
-   </div>
-
-   <div class="field">
-    <label>ρ</label>
-    <input
-     class="rho-input"
-     data-a="${a}"
-     data-b="${b}"
-     type="number"
-     min="-1"
-     max="1"
-     step="0.01"
-     value="${existing?.rho??0}">
-   </div>
-
-   </div>`;
-  }
- }
-
- box.innerHTML=html;
+ box.innerHTML=h;
 
 }
 
 
-function readCorrelations(){
-
- correlations=[];
-
- document.querySelectorAll(".rho-input")
- .forEach(input=>{
-
-  const rho=num(input.value);
-
-  if(rho===null)
-   return;
-
-  correlations.push({
-
-   a:input.dataset.a,
-   b:input.dataset.b,
-   rho:Math.max(-1,Math.min(1,rho))
-
-  });
-
- });
-
-}
-
-
-/* =========================
+/* =====================================================
    STATISTICS
-========================= */
+===================================================== */
 
 function parseValues(){
 
- const raw=document.getElementById("aValues").value;
-
- return raw
-  .split(/[\s,;]+/)
-  .map(x=>Number(String(x).replace(",", ".")))
-  .filter(Number.isFinite);
+ return document
+ .getElementById("aValues")
+ .value
+ .split(/[\s,;]+/)
+ .map(x=>
+  Number(
+   String(x).replace(",",".")
+  )
+ )
+ .filter(Number.isFinite);
 
 }
 
 
 function mean(a){
 
- return a.reduce((s,x)=>s+x,0)/a.length;
-
-}
-
-
-function std(a){
-
- if(a.length<2)
-  return 0;
-
- const m=mean(a);
-
- return Math.sqrt(
-  a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1)
- );
+ return a.reduce(
+  (s,x)=>s+x,
+  0
+ )/a.length;
 
 }
 
 
 function variance(a){
 
- const s=std(a);
+ if(a.length<2)return 0;
 
- return s*s;
+ const m=mean(a);
+
+ return a.reduce(
+  (s,x)=>s+(x-m)**2,
+  0
+ )/(a.length-1);
+
+}
+
+
+function std(a){
+
+ return Math.sqrt(
+  variance(a)
+ );
 
 }
 
 
 function median(a){
 
- const b=[...a].sort((x,y)=>x-y);
+ const x=
+  [...a].sort(
+   (a,b)=>a-b
+  );
 
- const n=b.length;
+ const n=x.length;
+
+ if(!n)return NaN;
 
  return n%2
-  ? b[(n-1)/2]
-  : (b[n/2-1]+b[n/2])/2;
+ ?x[(n-1)/2]
+ :(
+  x[n/2-1]+
+  x[n/2]
+ )/2;
 
 }
 
 
-function percentile(a,p){
+function quantile(a,q){
 
- const b=[...a].sort((x,y)=>x-y);
+ const x=
+  [...a].sort(
+   (a,b)=>a-b
+  );
 
- if(!b.length)
-  return null;
+ if(!x.length)return NaN;
 
- const pos=(b.length-1)*p;
+ const p=
+  (x.length-1)*q;
 
- const base=Math.floor(pos);
+ const i=Math.floor(p);
 
- const rest=pos-base;
+ const f=p-i;
 
- if(b[base+1]!==undefined)
-  return b[base]+rest*(b[base+1]-b[base]);
-
- return b[base];
+ return x[i]+
+  (x[i+1]??x[i]-x[i])*f;
 
 }
 
 
-function statistics(a){
+function stats(a){
 
  const m=mean(a);
+
  const s=std(a);
- const q1=percentile(a,.25);
- const q3=percentile(a,.75);
+
+ const q1=quantile(a,.25);
+
+ const q3=quantile(a,.75);
+
  const iqr=q3-q1;
 
- const outliers=a.filter(
-  x=>x<q1-1.5*iqr || x>q3+1.5*iqr
- );
+ const out=
+  a.filter(
+   x=>
+    x<q1-1.5*iqr||
+    x>q3+1.5*iqr
+  );
 
  return{
 
   n:a.length,
+
   mean:m,
+
   median:median(a),
+
   std:s,
+
   variance:s*s,
-  se:s/Math.sqrt(a.length),
+
+  se:
+   a.length>1
+   ?s/Math.sqrt(a.length)
+   :NaN,
+
   min:Math.min(...a),
+
   max:Math.max(...a),
-  range:Math.max(...a)-Math.min(...a),
+
+  range:
+   Math.max(...a)-
+   Math.min(...a),
+
   q1,
+
   q3,
+
   iqr,
-  cv:m!==0?Math.abs(s/m)*100:0,
-  outliers
+
+  cv:
+   m!==0
+   ?Math.abs(s/m)*100
+   :NaN,
+
+  outliers:out
 
  };
 
 }
 
 
-/* =========================
-   UNCERTAINTY
-========================= */
+/* =====================================================
+   AI ENGINE
+===================================================== */
 
-function getParam(key,param){
+function val(id){
 
- const el=
-  document.querySelector(
-   `[data-param="${key}-${param}"]`
-  );
+ const e=
+  document.getElementById(id);
 
- return el?num(el.value):null;
-
-}
-
-
-function standardUncertainty(key,stats){
-
- if(key==="repeatability"){
-
-  if(stats.n<2 || !(stats.std>0))
-   return null;
-
-  return{
-   u:stats.std/Math.sqrt(stats.n),
-   df:stats.n-1,
-   method:"s / √N"
-  };
-
- }
-
- if(key==="resolution"){
-
-  const value=getParam(key,"value");
-
-  if(!(value>0))
-   return null;
-
-  return{
-   u:value/Math.sqrt(12),
-   df:Infinity,
-   method:"rettangolare"
-  };
-
- }
-
- if(key==="calibration"){
-
-  const U=getParam(key,"uncertainty");
-  const k=getParam(key,"k");
-
-  if(!(U>0)||!(k>0))
-   return null;
-
-  return{
-   u:U/k,
-   df:Infinity,
-   method:"U / k"
-  };
-
- }
-
- const value=getParam(key,"value");
-
- if(!(value>0))
+ if(
+  !e||
+  e.value===""
+ )
   return null;
 
- return{
-  u:value/Math.sqrt(3),
-  df:Infinity,
-  method:INFLUENCES[key].method
- };
+ const n=Number(e.value);
+
+ return Number.isFinite(n)
+  ?n
+  :null;
 
 }
 
+
+function rectangular(a){
+
+ return a/Math.sqrt(3);
+
+}
+
+
+function addAIComp(
+ id,
+ name,
+ type,
+ u,
+ c,
+ df,
+ method,
+ origin
+){
+
+ if(
+  !Number.isFinite(u)||
+  u<0
+ )
+  return;
+
+ aiComponents.push({
+
+  id,
+  name,
+  type,
+  u,
+  c,
+  df,
+  method,
+  origin
+
+ });
+
+ aiSources.push({
+  id,
+  name
+ });
+
+}
+
+
+function runAIAnalysis(){
+
+ const id=
+  document
+  .getElementById("aMeasurand")
+  .value;
+
+ const values=
+  parseValues();
+
+ aiComponents=[];
+ aiMissing=[];
+ aiSources=[];
+
+ if(!id){
+
+  alert(
+   "Seleziona un misurando."
+  );
+
+  return;
+
+ }
+
+ const s=
+  values.length>=2
+  ?stats(values)
+  :null;
+
+
+ /* RIPETIBILITÀ */
+
+ if(s){
+
+  addAIComp(
+   "repeatability",
+   "Ripetibilità",
+   "A",
+   s.std/Math.sqrt(s.n),
+   1,
+   s.n-1,
+   "s / √N",
+   "serie di misure"
+  );
+
+ }else{
+
+  aiMissing.push(
+   "Inserire almeno 2 valori misurati per calcolare la ripetibilità."
+  );
+
+ }
+
+
+ /* RISOLUZIONE */
+
+ const resolution=
+  val("ai_resolution");
+
+ if(resolution>0){
+
+  addAIComp(
+   "resolution",
+   "Risoluzione",
+   "B",
+   rectangular(resolution),
+   1,
+   Infinity,
+   "a / √3",
+   "risoluzione strumento"
+  );
+
+ }else{
+
+  aiMissing.push(
+   "Risoluzione dello strumento."
+  );
+
+ }
+
+
+ /* TARATURA */
+
+ const calU=
+  val("ai_cal_U");
+
+ const calK=
+  val("ai_cal_k");
+
+ const calDf=
+  val("ai_cal_df")||50;
+
+ if(
+  calU>0&&
+  calK>0
+ ){
+
+  addAIComp(
+   "calibration",
+   "Taratura",
+   "B",
+   calU/calK,
+   1,
+   calDf,
+   "U / k",
+   "certificato di taratura"
+  );
+
+ }else{
+
+  aiMissing.push(
+   "U e k del certificato di taratura."
+  );
+
+ }
+
+
+ /* DIMENSIONALE */
+
+ const dimensional=[
+
+  "diameter",
+  "internal_diameter",
+  "external_diameter",
+  "length",
+  "width",
+  "thickness",
+  "height",
+  "depth",
+  "distance",
+  "center_distance",
+  "radius",
+  "pitch"
+
+ ];
+
+ if(
+  dimensional.includes(id)
+ ){
+
+  const dt=
+   val("ai_deltaT");
+
+  const alpha=
+   val("ai_alpha");
+
+  const nominal=
+   val("aReference");
+
+  if(
+   dt!==null&&
+   alpha!==null&&
+   Number.isFinite(nominal)
+  ){
+
+   /*
+    Modello semplificato:
+    Δx = α · x · ΔT
+
+    u(ΔT) = ΔT / √3
+
+    |cT| = |α · x|
+   */
+
+   const uT=
+    Math.abs(dt)/Math.sqrt(3);
+
+   const cT=
+    Math.abs(alpha*nominal);
+
+   addAIComp(
+    "temperature",
+    "Temperatura",
+    "B",
+    uT,
+    cT,
+    Infinity,
+    "|α·x| · ΔT/√3",
+    "modello termico"
+   );
+
+  }else{
+
+   aiMissing.push(
+    "ΔT, coefficiente α e valore nominale per il contributo termico."
+   );
+
+  }
+
+
+  const alignment=
+   val("ai_alignment");
+
+  if(alignment>0){
+
+   addAIComp(
+    "alignment",
+    "Allineamento",
+    "B",
+    rectangular(alignment),
+    1,
+    Infinity,
+    "limite / √3",
+    "limite tecnico"
+   );
+
+  }
+
+ }
+
+
+ /* PRESSIONE DIFFERENZIALE */
+
+ if(id==="pressure_drop"){
+
+  const k=
+   val("ai_pressure_k")||2;
+
+  const up=
+   val("ai_up_U");
+
+  const down=
+   val("ai_down_U");
+
+  const common=
+   val("ai_dp_commonU");
+
+  if(
+   up>0&&
+   down>0
+  ){
+
+   addAIComp(
+    "upstream",
+    "Pressione upstream",
+    "B",
+    up/k,
+    1,
+    Infinity,
+    "U / k",
+    "certificato upstream"
+   );
+
+   addAIComp(
+    "downstream",
+    "Pressione downstream",
+    "B",
+    down/k,
+    -1,
+    Infinity,
+    "U / k",
+    "certificato downstream"
+   );
+
+  }else if(common>0){
+
+   addAIComp(
+    "pressure_chain",
+    "Catena pressione",
+    "B",
+    common/k,
+    1,
+    Infinity,
+    "U / k",
+    "certificato comune"
+   );
+
+  }else{
+
+   aiMissing.push(
+    "U upstream e U downstream oppure U comune della catena pressione."
+   );
+
+  }
+
+
+  const stability=
+   val("ai_dp_stability");
+
+  if(stability>0){
+
+   addAIComp(
+    "pressure_stability",
+    "Stabilità pressione",
+    "B",
+    rectangular(stability),
+    1,
+    Infinity,
+    "limite / √3",
+    "stabilità banco"
+   );
+
+  }
+
+
+  const leakage=
+   val("ai_dp_leak");
+
+  if(leakage>0){
+
+   addAIComp(
+    "leakage",
+    "Leakage / deriva",
+    "B",
+    rectangular(leakage),
+    1,
+    Infinity,
+    "limite / √3",
+    "test leakage/deriva"
+   );
+
+  }
+
+ }
+
+
+ /* COPPIA */
+
+ if(
+  [
+   "torque_wrench",
+   "torque_driver",
+   "torque_transducer"
+  ].includes(id)
+ ){
+
+  const u=
+   val("ai_torque_U");
+
+  const k=
+   val("ai_torque_k")||2;
+
+  if(u>0){
+
+   addAIComp(
+    "torque_cal",
+    "Taratura coppia",
+    "B",
+    u/k,
+    1,
+    Infinity,
+    "U / k",
+    "certificato coppia"
+   );
+
+  }else{
+
+   aiMissing.push(
+    "U e k del certificato della catena di coppia."
+   );
+
+  }
+
+
+  const hyst=
+   val("ai_hysteresis");
+
+  if(hyst>0){
+
+   addAIComp(
+    "hysteresis",
+    "Isteresi",
+    "B",
+    rectangular(hyst),
+    1,
+    Infinity,
+    "limite / √3",
+    "salita/discesa"
+   );
+
+  }
+
+
+  const force=
+   val("ai_force_app");
+
+  if(force>0){
+
+   addAIComp(
+    "force_application",
+    "Applicazione carico",
+    "B",
+    rectangular(force),
+    1,
+    Infinity,
+    "limite / √3",
+    "applicazione carico"
+   );
+
+  }
+
+
+  const temp=
+   val("ai_torque_temp");
+
+  if(temp>0){
+
+   addAIComp(
+    "temperature",
+    "Temperatura",
+    "B",
+    rectangular(temp),
+    1,
+    Infinity,
+    "limite / √3",
+    "stima termica"
+   );
+
+  }
+
+
+  const range=
+   val("ai_torque_range");
+
+  if(!(range>0)){
+
+   aiMissing.push(
+    "Campo/fondo scala della chiave o del trasduttore."
+   );
+
+  }
+
+ }
+
+
+ /* TEMPERATURA */
+
+ if(id==="temperature"){
+
+  const stability=
+   val("ai_temp_stability");
+
+  const drift=
+   val("ai_temp_drift");
+
+  const gradient=
+   val("ai_temp_gradient");
+
+  if(stability>0){
+
+   addAIComp(
+    "temp_stability",
+    "Stabilità temperatura",
+    "B",
+    rectangular(stability),
+    1,
+    Infinity,
+    "limite / √3",
+    "stabilità"
+   );
+
+  }
+
+  if(drift>0){
+
+   addAIComp(
+    "sensor_drift",
+    "Deriva sensore",
+    "B",
+    rectangular(drift),
+    1,
+    Infinity,
+    "limite / √3",
+    "deriva"
+   );
+
+  }
+
+  if(gradient>0){
+
+   addAIComp(
+    "ambient_gradient",
+    "Gradiente ambiente",
+    "B",
+    rectangular(gradient),
+    1,
+    Infinity,
+    "limite / √3",
+    "gradiente"
+   );
+
+  }
+
+ }
+
+
+ renderAISummary();
+
+ renderModel();
+
+}
+
+
+function renderAISummary(){
+
+ const box=
+  document.getElementById(
+   "aiSourceSummary"
+  );
+
+ box.innerHTML=`
+
+ <h3>
+ Fonti selezionate e calcolate automaticamente
+ </h3>
+
+ ${
+  aiComponents.length
+
+  ?
+
+  aiComponents
+  .map(c=>`
+
+   <div class="source">
+
+   <strong>
+   ${esc(c.name)}
+   </strong>
+
+   <div class="note">
+
+   Tipo ${esc(c.type)}
+   · ${esc(c.method)}
+   · ${esc(c.origin)}
+
+   </div>
+
+   <div class="source-grid">
+
+   <div class="field">
+   <label>u standard</label>
+   <input
+    value="${fmt(c.u)}"
+    disabled>
+   </div>
+
+   <div class="field">
+   <label>c</label>
+   <input
+    value="${fmt(c.c)}"
+    disabled>
+   </div>
+
+   <div class="field">
+   <label>df</label>
+   <input
+    value="${
+     Number.isFinite(c.df)
+     ?fmt(c.df,2)
+     :"∞"
+    }"
+    disabled>
+   </div>
+
+   <div class="field">
+   <label>Origine</label>
+   <input
+    value="${esc(c.origin)}"
+    disabled>
+   </div>
+
+   </div>
+
+   </div>
+
+  `)
+  .join("")
+
+  :
+
+  '<div class="empty">Nessuna fonte calcolabile.</div>'
+ }
+
+ <div
+  class="panel"
+  style="margin-top:12px">
+
+  <strong>
+  Dati mancanti / da verificare
+  </strong>
+
+  ${
+   aiMissing.length
+
+   ?
+
+   "<ul>"+
+   aiMissing
+   .map(x=>
+    `<li>${esc(x)}</li>`
+   )
+   .join("")+
+   "</ul>"
+
+   :
+
+   '<p style="color:var(--good)">Nessun dato obbligatorio mancante.</p>'
+  }
+
+ </div>
+
+ `;
+
+}
+
+
+/* =====================================================
+   CORRELAZIONI
+===================================================== */
+
+function selectedInfluences(){
+
+ return aiSources.map(
+  x=>x.id
+ );
+
+}
+
+
+function influenceName(id){
+
+ const map={
+
+  repeatability:"Ripetibilità",
+  resolution:"Risoluzione",
+  calibration:"Taratura",
+  temperature:"Temperatura",
+  alignment:"Allineamento",
+  upstream:"Pressione upstream",
+  downstream:"Pressione downstream",
+  pressure_chain:"Catena pressione",
+  pressure_stability:"Stabilità pressione",
+  leakage:"Leakage / deriva",
+  torque_cal:"Taratura coppia",
+  hysteresis:"Isteresi",
+  force_application:"Applicazione carico",
+  sensor_drift:"Deriva sensore",
+  ambient_gradient:"Gradiente ambiente"
+
+ };
+
+ return map[id]||id;
+
+}
+
+
+function renderCorrelations(){
+
+ const box=
+  document.getElementById(
+   "correlations"
+  );
+
+ const selected=
+  selectedInfluences();
+
+ if(!correlations.length){
+
+  box.innerHTML=
+   '<div class="empty">Nessuna correlazione inserita.</div>';
+
+  return;
+
+ }
+
+ box.innerHTML=
+  correlations
+  .map(
+   (c,i)=>`
+
+   <div class="grid3"
+   style="margin-bottom:10px">
+
+   <div class="field">
+
+   <label>Fonte A</label>
+
+   <select
+    onchange="
+    correlations[${i}].a=this.value;
+    ">
+
+   ${
+    selected
+    .map(
+     x=>
+     `<option
+      value="${x}"
+      ${x===c.a?"selected":""}>
+      ${esc(influenceName(x))}
+      </option>`
+    )
+    .join("")
+   }
+
+   </select>
+
+   </div>
+
+   <div class="field">
+
+   <label>Fonte B</label>
+
+   <select
+    onchange="
+    correlations[${i}].b=this.value;
+    ">
+
+   ${
+    selected
+    .map(
+     x=>
+     `<option
+      value="${x}"
+      ${x===c.b?"selected":""}>
+      ${esc(influenceName(x))}
+      </option>`
+    )
+    .join("")
+   }
+
+   </select>
+
+   </div>
+
+   <div class="field">
+
+   <label>ρ (-1 … +1)</label>
+
+   <input
+    type="number"
+    min="-1"
+    max="1"
+    step="0.01"
+    value="${c.rho}"
+    onchange="
+     correlations[${i}].rho=Number(this.value)
+    ">
+
+   </div>
+
+   </div>
+
+   `
+  )
+  .join("");
+
+}
+
+
+document
+.getElementById("addCorrelation")
+.addEventListener(
+ "click",
+ ()=>{
+
+  const s=
+   selectedInfluences();
+
+  if(s.length<2){
+
+   alert(
+    "Prima esegui l'analisi AI e seleziona almeno due fonti."
+   );
+
+   return;
+
+  }
+
+  correlations.push({
+
+   a:s[0],
+
+   b:s[1],
+
+   rho:0
+
+  });
+
+  renderCorrelations();
+
+ }
+);
+
+
+/* =====================================================
+   CALCOLO
+===================================================== */
 
 function t95(df){
 
- if(!Number.isFinite(df))
-  return 2;
+ if(
+  !Number.isFinite(df)||
+  df>=120
+ )
+  return 1.96;
 
  const table={
+
   1:12.706,
   2:4.303,
   3:3.182,
@@ -2461,273 +3513,330 @@ function t95(df){
   100:1.984
  };
 
- const keys=Object.keys(table)
-  .map(Number)
-  .sort((a,b)=>a-b);
+ let best=1;
 
- let nearest=keys[0];
+ let distance=Infinity;
 
- keys.forEach(k=>{
-  if(Math.abs(k-df)<Math.abs(nearest-df))
-   nearest=k;
- });
+ for(
+  const key of Object.keys(table)
+ ){
 
- return table[nearest];
+  const k=Number(key);
 
-}
+  const d=
+   Math.abs(k-df);
 
+  if(d<distance){
 
-function effectiveDegrees(rows,uc){
+   distance=d;
 
- const finite=rows.filter(
-  r=>Number.isFinite(r.df)&&r.df>0
- );
-
- if(!finite.length || !(uc>0))
-  return Infinity;
-
- const sum=finite.reduce(
-  (s,r)=>
-   s+
-   Math.pow(Math.abs(r.c*r.u),4)/r.df,
-  0
- );
-
- if(!(sum>0))
-  return Infinity;
-
- return Math.pow(uc,4)/sum;
-
-}
-
-
-/* =========================
-   CALCULATION
-========================= */
-
-function calculate(){
-
- const masterId=
-  document.getElementById("aMaster").value;
-
- if(!masterId){
-
-  alert("Seleziona un master.");
-  return;
-
- }
-
- const master=masters.find(
-  m=>m.id===masterId
- );
-
- const values=parseValues();
-
- if(values.length<2){
-
-  alert("Inserisci almeno 2 misure.");
-  return;
-
- }
-
- const stats=statistics(values);
-
- const measurand=
-  document.getElementById("aMeasurand").value;
-
- const unit=
-  document.getElementById("aUnit").value;
-
- const reference=
-  num(document.getElementById("aReference").value);
-
- const limit=
-  num(document.getElementById("aLimit").value);
-
- const model=MODEL_META[measurand]||MODEL_META.default;
-
- readCorrelations();
-
- const selected=selectedInfluences();
-
- const components=[];
-
- selected.forEach(key=>{
-
-  const info=INFLUENCES[key];
-
-  const result=
-   standardUncertainty(key,stats);
-
-  if(!result)
-   return;
-
-  let c=1;
-
-  if(measurand==="pressure_drop"){
-
-   if(key==="pressure_stability")
-    c=1;
+   best=k;
 
   }
 
-  components.push({
+ }
 
-   key,
-   name:info.name,
-   type:info.type,
-   u:result.u,
-   c,
-   df:result.df,
-   method:result.method
+ return table[best];
 
-  });
+}
 
- });
 
- if(!components.some(x=>x.key==="repeatability")){
+function readSpecificFields(){
 
-  components.unshift({
+ const o={};
 
-   key:"repeatability",
-   name:"Ripetibilità",
-   type:"A",
-   u:stats.se,
-   c:1,
-   df:Math.max(1,stats.n-1),
-   method:"s / √N"
+ document
+ .querySelectorAll(
+  "#specificFields input,#specificFields select"
+ )
+ .forEach(e=>
+  o[e.id]=e.value
+ );
 
-  });
+ return o;
+
+}
+
+
+function calculate(){
+
+ const values=
+  parseValues();
+
+ if(values.length<2){
+
+  alert(
+   "Inserisci almeno 2 valori misurati."
+  );
+
+  return;
 
  }
 
- const varianceIndependent=
+ const master=
+  masters.find(
+   m=>
+   m.id===
+   document
+   .getElementById("aMaster")
+   .value
+  );
+
+ if(!master){
+
+  alert(
+   "Seleziona un master."
+  );
+
+  return;
+
+ }
+
+ if(!aiComponents.length){
+
+  alert(
+   "Prima premi “🤖 Analizza e calcola fonti”."
+  );
+
+  return;
+
+ }
+
+ if(aiMissing.length){
+
+  const proceed=
+   confirm(
+    "L'AI ha segnalato dati mancanti:\n\n"+
+    aiMissing.join("\n")+
+    "\n\nVuoi comunque eseguire il calcolo con le sole fonti disponibili?"
+   );
+
+  if(!proceed)return;
+
+ }
+
+ const s=
+  stats(values);
+
+ const ref=
+  Number(
+   document
+   .getElementById("aReference")
+   .value
+  );
+
+ const limit=
+  Number(
+   document
+   .getElementById("aLimit")
+   .value
+  );
+
+ const components=
+  aiComponents.map(
+   c=>({...c})
+  );
+
+ let varianceCombined=
   components.reduce(
-   (s,r)=>s+(r.c*r.u)**2,
+   (sum,c)=>
+    sum+
+    (c.c*c.u)**2,
    0
   );
 
- let covarianceTerm=0;
+ const covariancePairs=[];
 
- correlations.forEach(pair=>{
 
-  const a=components.find(x=>x.key===pair.a);
-  const b=components.find(x=>x.key===pair.b);
+ for(
+  const pair of correlations
+ ){
 
-  if(!a||!b)
-   return;
+  const a=
+   components.find(
+    x=>x.id===pair.a
+   );
 
-  covarianceTerm+=
+  const b=
+   components.find(
+    x=>x.id===pair.b
+   );
+
+  if(!a||!b)continue;
+
+  const rho=
+   Math.max(
+    -1,
+    Math.min(
+     1,
+     Number(pair.rho)
+    )
+   );
+
+  const term=
    2*
-   pair.rho*
+   rho*
    a.c*
    b.c*
    a.u*
    b.u;
 
- });
+  varianceCombined+=term;
 
- let totalVariance=
-  varianceIndependent+
-  covarianceTerm;
+  covariancePairs.push({
 
- if(totalVariance<0 && totalVariance>-1e-15)
-  totalVariance=0;
+   a:a.name,
 
- if(totalVariance<0){
+   b:b.name,
+
+   rho,
+
+   term
+
+  });
+
+ }
+
+
+ if(
+  varianceCombined<0
+ ){
 
   alert(
-   "Il budget produce una varianza combinata negativa. "+
-   "Controlla le correlazioni."
+   "La varianza combinata è negativa. Controllare le correlazioni."
   );
 
   return;
 
  }
 
- const uc=Math.sqrt(totalVariance);
 
- const veff=effectiveDegrees(
-  components,
-  uc
- );
+ const uc=
+  Math.sqrt(
+   varianceCombined
+  );
 
- const k=t95(veff);
 
- const U=k*uc;
+ const finite=
+  components.filter(
+   c=>
+    Number.isFinite(c.df)&&
+    c.df>0
+  );
+
+
+ let denominator=0;
+
+ finite.forEach(c=>{
+
+  denominator+=
+   (c.c*c.u)**4/
+   c.df;
+
+ });
+
+
+ const veff=
+  denominator>0
+  ?uc**4/denominator
+  :Infinity;
+
+
+ const k=
+  t95(veff);
+
+ const U=
+  k*uc;
 
  const bias=
-  reference!==null
-   ? stats.mean-reference
-   : null;
+  Number.isFinite(ref)
+  ?s.mean-ref
+  :null;
 
- let status="ATTENZIONE";
 
- if(limit!==null && bias!==null){
+ let status="N/D";
+
+ let cls="result-warn";
+
+
+ if(
+  Number.isFinite(ref)&&
+  Number.isFinite(limit)
+ ){
+
+  const margin=
+   Math.abs(limit);
+
+  const score=
+   Math.abs(bias)+U;
 
   if(
-   Math.abs(bias)+U<=Math.abs(limit)
-  )
+   score<=margin
+  ){
+
    status="OK";
 
+   cls="result-good";
+
+  }
   else if(
-   Math.abs(bias)-U>Math.abs(limit)
-  )
+   Math.abs(bias)<=margin
+  ){
+
+   status="ATTENZIONE";
+
+  }
+  else{
+
    status="NOK";
+
+   cls="result-bad";
+
+  }
 
  }
 
+
  lastAnalysis={
 
-  verificationId:null,
+  id:uid("AN"),
 
-  masterId,
+  masterId:
+   master.id,
 
-  masterDescription:
-   master?.description||"",
+  masterSnapshot:
+   JSON.parse(
+    JSON.stringify(master)
+   ),
 
-  machine:
-   master?.machine||"",
-
-  measurand,
+  measurand:
+   document
+   .getElementById("aMeasurand")
+   .value,
 
   measurandName:
-   MEASURANDS[measurand]||measurand,
+   measInfo(
+    document
+    .getElementById("aMeasurand")
+    .value
+   ).name,
 
-  unit,
+  unit:
+   document
+   .getElementById("aUnit")
+   .value,
 
-  reference,
+  reference:ref,
 
   limit,
 
   values:[...values],
 
-  stats,
-
-  model:model.text,
+  stats:s,
 
   components,
 
-  correlations:[...correlations],
-
-  covariancePairs:
-   correlations.map(p=>{
-
-    const a=components.find(x=>x.key===p.a);
-    const b=components.find(x=>x.key===p.b);
-
-    return{
-
-     a:INFLUENCES[p.a]?.name||p.a,
-     b:INFLUENCES[p.b]?.name||p.b,
-     rho:p.rho,
-     term:a&&b
-      ?2*p.rho*a.c*b.c*a.u*b.u
-      :0
-
-    };
-
-   }),
+  covariancePairs,
 
   uc,
 
@@ -2741,82 +3850,112 @@ function calculate(){
 
   status,
 
-  createdAt:new Date().toISOString()
+  model:
+   (
+    MODEL_META[
+     document
+     .getElementById("aMeasurand")
+     .value
+    ]||
+    {text:"y = x"}
+   ).text,
+
+  specific:
+   readSpecificFields(),
+
+  aiMissing:
+   [...aiMissing],
+
+  aiSources:
+   [...aiSources],
+
+  createdAt:
+   new Date().toISOString(),
+
+  saved:false
 
  };
 
- renderAnalysisResult();
 
- document.getElementById("saveVerification")
-  .disabled=false;
+ renderAnalysisResult(
+  lastAnalysis,
+  cls
+ );
 
- document.getElementById("generatePDF")
-  .disabled=false;
+ document
+ .getElementById("saveVerification")
+ .disabled=false;
 
- renderCorrelations();
+ document
+ .getElementById("generatePDF")
+ .disabled=false;
 
 }
 
 
-function renderAnalysisResult(){
+function renderAnalysisResult(r,cls){
 
- const r=lastAnalysis;
+ document
+ .getElementById("analysisResult")
+ .innerHTML=`
 
- if(!r)
-  return;
-
- let resultClass="result-warn";
-
- if(r.status==="OK")
-  resultClass="result-good";
-
- if(r.status==="NOK")
-  resultClass="result-bad";
-
- document.getElementById("analysisResult").innerHTML=`
-
- <div class="panel ${resultClass}">
+ <div class="panel ${cls}">
 
  <h2>Risultato analisi</h2>
 
  <div class="metric-grid">
 
-  <div class="metric">
-   <span class="label">Media</span>
-   <b>${fmt(r.stats.mean)}</b>
-  </div>
+ <div class="metric">
+ <span class="label">Media</span>
+ <b>${fmt(r.stats.mean)}</b>
+ </div>
 
-  <div class="metric">
-   <span class="label">uc</span>
-   <b>${fmt(r.uc)}</b>
-  </div>
+ <div class="metric">
+ <span class="label">Bias</span>
+ <b>${fmt(r.bias)}</b>
+ </div>
 
-  <div class="metric">
-   <span class="label">U</span>
-   <b>${fmt(r.U)}</b>
-  </div>
+ <div class="metric">
+ <span class="label">uc</span>
+ <b>${fmt(r.uc)}</b>
+ </div>
 
-  <div class="metric">
-   <span class="label">k</span>
-   <b>${fmt(r.k,3)}</b>
-  </div>
+ <div class="metric">
+ <span class="label">U</span>
+ <b>${fmt(r.U)}</b>
+ </div>
+
+ <div class="metric">
+ <span class="label">k</span>
+ <b>${fmt(r.k,3)}</b>
+ </div>
+
+ <div class="metric">
+ <span class="label">νeff</span>
+ <b>${fmt(r.veff,2)}</b>
+ </div>
+
+ <div class="metric">
+ <span class="label">N</span>
+ <b>${r.stats.n}</b>
+ </div>
+
+ <div class="metric">
+ <span class="label">Stato</span>
+ <b>${r.status}</b>
+ </div>
 
  </div>
 
  <p>
 
- <strong>Stato:</strong>
- ${esc(r.status)}
+ <strong>Modello:</strong>
+ ${esc(r.model)}
 
- ·
+ <br>
 
- <strong>νeff:</strong>
- ${fmt(r.veff,2)}
-
- ·
-
- <strong>Bias:</strong>
- ${fmt(r.bias)}
+ <strong>Master:</strong>
+ ${esc(r.masterId)}
 
  </p>
 
@@ -2834,6 +3973,7 @@ function renderAnalysisResult(){
  <thead>
 
  <tr>
+
  <th>Fonte</th>
  <th>Tipo</th>
  <th>u</th>
@@ -2841,41 +3981,78 @@ function renderAnalysisResult(){
  <th>|c·u|</th>
  <th>df</th>
  <th>Metodo</th>
+
  </tr>
 
  </thead>
 
  <tbody>
 
- ${r.components.map(c=>`
+ ${r.components.map(
+  c=>`
 
- <tr>
+  <tr>
 
- <td>${esc(c.name)}</td>
+  <td>${esc(c.name)}</td>
 
- <td>${esc(c.type)}</td>
+  <td>${esc(c.type)}</td>
 
- <td>${fmt(c.u)}</td>
+  <td>${fmt(c.u)}</td>
 
- <td>${fmt(c.c)}</td>
+  <td>${fmt(c.c)}</td>
 
- <td>${fmt(Math.abs(c.c*c.u))}</td>
+  <td>
+   ${fmt(
+    Math.abs(c.c*c.u)
+   )}
+  </td>
 
- <td>
- ${Number.isFinite(c.df)?fmt(c.df,2):"∞"}
- </td>
+  <td>
+   ${
+    Number.isFinite(c.df)
+    ?fmt(c.df,2)
+    :"∞"
+   }
+  </td>
 
- <td>${esc(c.method)}</td>
+  <td>${esc(c.method)}</td>
 
- </tr>
+  </tr>
 
- `).join("")}
+ `
+ ).join("")}
 
  </tbody>
 
  </table>
 
  </div>
+
+ ${
+  r.covariancePairs.length
+
+  ?
+
+  `<p class="note">
+
+  Covarianze:
+  ${
+   r.covariancePairs
+   .map(
+    c=>
+    `${esc(c.a)}
+     / ${esc(c.b)}
+     : ρ=${c.rho}
+     · term=${fmt(c.term)}`
+   )
+   .join(" · ")
+  }
+
+  </p>`
+
+  :""
+
+ }
 
  </div>
 
@@ -2893,7 +4070,6 @@ function renderAnalysisResult(){
  <tr>
  <td>N</td>
  <td>${r.stats.n}</td>
-
  <td>Media</td>
  <td>${fmt(r.stats.mean)}</td>
  </tr>
@@ -2901,7 +4077,6 @@ function renderAnalysisResult(){
  <tr>
  <td>Mediana</td>
  <td>${fmt(r.stats.median)}</td>
-
  <td>Dev. standard</td>
  <td>${fmt(r.stats.std)}</td>
  </tr>
@@ -2909,7 +4084,6 @@ function renderAnalysisResult(){
  <tr>
  <td>Varianza</td>
  <td>${fmt(r.stats.variance)}</td>
-
  <td>SE</td>
  <td>${fmt(r.stats.se)}</td>
  </tr>
@@ -2921,7 +4095,6 @@ function renderAnalysisResult(){
  /
  ${fmt(r.stats.max)}
  </td>
-
  <td>Range</td>
  <td>${fmt(r.stats.range)}</td>
  </tr>
@@ -2933,7 +4106,6 @@ function renderAnalysisResult(){
  /
  ${fmt(r.stats.q3)}
  </td>
-
  <td>IQR</td>
  <td>${fmt(r.stats.iqr)}</td>
  </tr>
@@ -2941,7 +4113,6 @@ function renderAnalysisResult(){
  <tr>
  <td>CV %</td>
  <td>${fmt(r.stats.cv,3)}</td>
-
  <td>Outlier IQR</td>
  <td>${r.stats.outliers.length}</td>
  </tr>
@@ -2952,48 +4123,72 @@ function renderAnalysisResult(){
 
  </div>
 
- </div>`;
+ </div>
+
+ `;
 
 }
 
 
-/* =========================
-   SAVE VERIFICATION
-========================= */
+/* =====================================================
+   SALVATAGGIO VERIFICA
+===================================================== */
 
 function saveVerification(){
 
  if(!lastAnalysis){
 
-  alert("Prima esegui il calcolo.");
+  alert(
+   "Prima esegui il calcolo."
+  );
+
   return;
 
  }
 
- const masterId=lastAnalysis.masterId;
-
  const count=
-  history.filter(v=>v.masterId===masterId).length+1;
+  history.filter(
+   v=>
+   v.masterId===
+   lastAnalysis.masterId
+  ).length+1;
 
  const verification={
-  ...JSON.parse(JSON.stringify(lastAnalysis)),
+
+  ...JSON.parse(
+   JSON.stringify(lastAnalysis)
+  ),
+
   verificationId:
    `VER-${String(count).padStart(3,"0")}`,
-  savedAt:new Date().toISOString(),
+
+  savedAt:
+   new Date().toISOString(),
+
   saved:true
+
  };
 
- history.push(verification);
+ history.push(
+  verification
+ );
 
- store(HISTORY_KEY,history);
+ store(
+  HISTORY_KEY,
+  history
+ );
 
- lastAnalysis=verification;
+ lastAnalysis=
+  verification;
 
- document.getElementById("saveVerification")
-  .disabled=true;
+ document
+ .getElementById("saveVerification")
+ .disabled=true;
 
  refreshDashboard();
+
  renderHistory();
+
  renderMasters();
 
  alert(
@@ -3003,13 +4198,40 @@ function saveVerification(){
 }
 
 
-/* =========================
-   HISTORY
-========================= */
+document
+.getElementById("calculate")
+.addEventListener(
+ "click",
+ calculate
+);
+
+
+document
+.getElementById("runAIAnalysis")
+.addEventListener(
+ "click",
+ runAIAnalysis
+);
+
+
+document
+.getElementById("saveVerification")
+.addEventListener(
+ "click",
+ saveVerification
+);
+
+
+/* =====================================================
+   STORICO
+===================================================== */
 
 function renderHistory(){
 
- const box=document.getElementById("historyTable");
+ const box=
+  document.getElementById(
+   "historyTable"
+  );
 
  if(!history.length){
 
@@ -3029,6 +4251,7 @@ function renderHistory(){
  <thead>
 
  <tr>
+
  <th>Verifica</th>
  <th>Master</th>
  <th>Data</th>
@@ -3037,89 +4260,120 @@ function renderHistory(){
  <th>U</th>
  <th>k</th>
  <th>Stato</th>
+
  </tr>
 
  </thead>
 
  <tbody>
 
- ${history.slice().reverse().map(v=>`
+ ${
+  history
+  .slice()
+  .reverse()
+  .map(v=>`
 
- <tr>
+   <tr>
 
- <td>
- <strong>
- ${esc(v.verificationId||"—")}
- </strong>
- </td>
+   <td>
+   <strong>
+   ${esc(v.verificationId||"—")}
+   </strong>
+   </td>
 
- <td>${esc(v.masterId)}</td>
+   <td>${esc(v.masterId)}</td>
 
- <td>
- ${new Date(
-   v.savedAt||v.createdAt
- ).toLocaleString("it-IT")}
- </td>
+   <td>
+   ${new Date(
+    v.savedAt||v.createdAt
+   ).toLocaleString("it-IT")}
+   </td>
 
- <td>${esc(v.measurandName)}</td>
+   <td>
+   ${esc(v.measurandName)}
+   </td>
 
- <td>${fmt(v.stats?.mean)}</td>
+   <td>
+   ${fmt(v.stats?.mean)}
+   </td>
 
- <td>${fmt(v.U)}</td>
+   <td>
+   ${fmt(v.U)}
+   </td>
 
- <td>${fmt(v.k,3)}</td>
+   <td>
+   ${fmt(v.k,3)}
+   </td>
 
- <td>
+   <td>
 
- <span class="badge ${
-  v.status==="OK"
-   ?""
-   :v.status==="NOK"
+   <span class="badge ${
+    v.status==="OK"
+    ?""
+    :v.status==="NOK"
     ?"bad"
     :"warn"
- }">
+   }">
 
- ${esc(v.status)}
+   ${esc(v.status)}
 
- </span>
+   </span>
 
- </td>
+   </td>
 
- </tr>
+   </tr>
 
- `).join("")}
+  `)
+  .join("")
+ }
 
  </tbody>
 
  </table>
 
- </div>`;
+ </div>
+
+ `;
 
 }
 
 
-/* =========================
+/* =====================================================
    DASHBOARD
-========================= */
+===================================================== */
 
 function refreshDashboard(){
 
- document.getElementById("kpiMasters")
-  .textContent=masters.length;
+ document
+ .getElementById("kpiMasters")
+ .textContent=
+ masters.length;
 
- document.getElementById("kpiVerifications")
-  .textContent=history.length;
+ document
+ .getElementById("kpiVerifications")
+ .textContent=
+ history.length;
 
- document.getElementById("kpiOK")
-  .textContent=
-   history.filter(x=>x.status==="OK").length;
+ document
+ .getElementById("kpiOK")
+ .textContent=
+ history.filter(
+  x=>x.status==="OK"
+ ).length;
 
- document.getElementById("kpiWarn")
-  .textContent=
-   history.filter(x=>x.status!=="OK").length;
+ document
+ .getElementById("kpiWarn")
+ .textContent=
+ history.filter(
+  x=>x.status!=="OK"
+ ).length;
+
 
  const box=
-  document.getElementById("dashboardHistory");
+  document
+  .getElementById(
+   "dashboardHistory"
+  );
 
  if(!history.length){
 
@@ -3139,169 +4393,345 @@ function refreshDashboard(){
  <thead>
 
  <tr>
+
  <th>Verifica</th>
  <th>Master</th>
  <th>Data</th>
  <th>U</th>
  <th>Stato</th>
+
  </tr>
 
  </thead>
 
  <tbody>
 
- ${history.slice(-8).reverse().map(v=>`
+ ${
+  history
+  .slice(-8)
+  .reverse()
+  .map(v=>`
 
- <tr>
+   <tr>
 
- <td>${esc(v.verificationId)}</td>
+   <td>
+   ${esc(v.verificationId)}
+   </td>
 
- <td>${esc(v.masterId)}</td>
+   <td>
+   ${esc(v.masterId)}
+   </td>
 
- <td>
- ${new Date(v.savedAt)
-  .toLocaleString("it-IT")}
- </td>
+   <td>
+   ${new Date(
+    v.savedAt
+   ).toLocaleString("it-IT")}
+   </td>
 
- <td>${fmt(v.U)}</td>
+   <td>
+   ${fmt(v.U)}
+   </td>
 
- <td>${esc(v.status)}</td>
+   <td>
+   ${esc(v.status)}
+   </td>
 
- </tr>
+   </tr>
 
- `).join("")}
+  `)
+  .join("")
+ }
 
  </tbody>
 
  </table>
 
- </div>`;
+ </div>
+
+ `;
 
 }
 
 
-/* =========================
-   AI ASSISTANT
-========================= */
+/* =====================================================
+   AI PAGE
+===================================================== */
 
 function runAI(){
 
  const id=
-  document.getElementById("aMeasurand").value;
+  document
+  .getElementById("aMeasurand")
+  .value;
 
- const selected=selectedInfluences();
+ if(!id){
 
- const rec=[];
-
- if(
-  id==="pressure_drop" &&
-  !selected.includes("repeatability")
- ){
-
-  rec.push(
-   "Aggiungere la ripetibilità: la caduta di pressione dipende dalla stabilità del banco e dei due punti di misura."
+  alert(
+   "Seleziona prima un misurando."
   );
+
+  return;
 
  }
 
- if(
-  [
-   "diameter",
-   "internal_diameter",
-   "external_diameter",
-   "length"
-  ].includes(id) &&
-  !selected.includes("temperature")
- ){
+ openPage("analysis");
 
-  rec.push(
-   "Valutare l'influenza della temperatura e il coefficiente di espansione del sistema."
+ runAIAnalysis();
+
+ const notes=[];
+
+ if(aiMissing.length)
+  notes.push(
+   ...aiMissing
   );
 
- }
+ notes.push(
+  `Fonti calcolate automaticamente: ${
+   aiComponents
+   .map(x=>x.name)
+   .join(", ")||
+   "nessuna"
+  }.`
+ );
 
- if(
-  id.startsWith("torque_") &&
-  !selected.includes("calibration")
- ){
-
-  rec.push(
-   "La taratura della catena di misura della coppia è una fonte primaria da documentare."
-  );
-
- }
-
- if(!selected.includes("resolution")){
-
-  rec.push(
-   "Verificare la risoluzione effettiva dello strumento rispetto all'incertezza totale."
-  );
-
- }
-
- if(!rec.length){
-
-  rec.push(
-   "Configurazione coerente con le regole locali. Verificare comunque il modello fisico reale e i certificati."
-  );
-
- }
-
- document.getElementById("aiResult").innerHTML=`
+ document
+ .getElementById("aiResult")
+ .innerHTML=`
 
  <div class="panel">
 
- <h2>Esito assistente</h2>
+ <h2>Esito AI</h2>
 
- ${rec.map(x=>`
-  <p>• ${esc(x)}</p>
- `).join("")}
+ ${
+  notes
+  .map(
+   x=>
+   `<p>• ${esc(x)}</p>`
+  )
+  .join("")
+ }
 
  <p class="note">
- Advisory deterministico:
- non sostituisce il giudizio del metrologo.
+
+ Il motore è deterministico e trasparente.
+ Non inventa dati mancanti e non sostituisce
+ il giudizio del metrologo.
+
  </p>
 
- </div>`;
+ </div>
+
+ `;
 
 }
 
 
-/* =========================
+/* =====================================================
+   PDF
+===================================================== */
+
+document
+.getElementById("generatePDF")
+.addEventListener(
+ "click",
+ generatePDF
+);
+
+
+function generatePDF(){
+
+ if(!lastAnalysis){
+
+  alert(
+   "Nessuna analisi disponibile."
+  );
+
+  return;
+
+ }
+
+ const js=
+  window.jspdf?.jsPDF;
+
+ if(!js){
+
+  alert(
+   "Libreria PDF non disponibile."
+  );
+
+  return;
+
+ }
+
+ const doc=
+  new js();
+
+ let y=18;
+
+ function line(
+  text,
+  size=10
+ ){
+
+  doc.setFontSize(size);
+
+  doc.text(
+   String(text),
+   14,
+   y
+  );
+
+  y+=7;
+
+  if(y>280){
+
+   doc.addPage();
+
+   y=18;
+
+  }
+
+ }
+
+
+ line(
+  "METROLOGY UNCERTAINTY ANALYZER V7.3",
+  16
+ );
+
+ line(
+  `Verifica: ${
+   lastAnalysis.verificationId||
+   "NON SALVATA"
+  }`
+ );
+
+ line(
+  `Master: ${lastAnalysis.masterId}`
+ );
+
+ line(
+  `Misurando: ${
+   lastAnalysis.measurandName
+  } [${lastAnalysis.unit}]`
+ );
+
+ line(
+  `Media: ${fmt(lastAnalysis.stats.mean)}`
+ );
+
+ line(
+  `Bias: ${fmt(lastAnalysis.bias)}`
+ );
+
+ line(
+  `uc: ${fmt(lastAnalysis.uc)}`
+ );
+
+ line(
+  `U: ${fmt(lastAnalysis.U)}`
+ );
+
+ line(
+  `k: ${fmt(lastAnalysis.k,3)}`
+ );
+
+ line(
+  `νeff: ${fmt(lastAnalysis.veff,2)}`
+ );
+
+ line(
+  `Stato: ${lastAnalysis.status}`,
+  12
+ );
+
+ line("");
+
+ line(
+  "BUDGET DI INCERTEZZA",
+  13
+ );
+
+ lastAnalysis.components
+ .forEach(c=>{
+
+  line(
+   `${c.name}: `+
+   `u=${fmt(c.u)} `+
+   `c=${fmt(c.c)} `+
+   `|cu|=${fmt(
+    Math.abs(c.c*c.u)
+   )}`
+  );
+
+ });
+
+ line("");
+
+ line(
+  "STATISTICHE",
+  13
+ );
+
+ line(
+  `N=${lastAnalysis.stats.n} `+
+  `s=${fmt(lastAnalysis.stats.std)} `+
+  `min=${fmt(lastAnalysis.stats.min)} `+
+  `max=${fmt(lastAnalysis.stats.max)} `+
+  `range=${fmt(lastAnalysis.stats.range)}`
+ );
+
+ doc.save(
+  `${
+   lastAnalysis.verificationId||
+   "analysis"
+  }_${
+   lastAnalysis.masterId
+  }.pdf`
+ );
+
+}
+
+
+/* =====================================================
    VALIDATION
-========================= */
+===================================================== */
 
 function runValidation(){
 
  const tests=[];
 
- function test(name,actual,expected,tol=1e-9){
+ function test(
+  name,
+  actual,
+  expected,
+  tolerance=1e-9
+ ){
 
   let pass;
 
-  if(typeof expected==="boolean"){
-
-   pass=actual===expected;
-
-  }else if(
-   typeof actual==="string" ||
+  if(
+   typeof actual==="string"||
    typeof expected==="string"
   ){
 
-   pass=actual===expected;
+   pass=
+    actual===expected;
 
   }else{
 
    pass=
-    Math.abs(actual-expected)<=tol;
+    Math.abs(
+     actual-expected
+    )<=tolerance;
 
   }
 
   tests.push({
    name,
-   pass,
    actual,
-   expected
+   expected,
+   pass
   });
 
  }
@@ -3315,14 +4745,14 @@ function runValidation(){
 
 
  test(
-  "STAT-02 std campionaria",
+  "STAT-02 deviazione standard",
   std([1,2,3]),
   1
  );
 
 
  test(
-  "A-01 uA s/√N",
+  "A-01 ripetibilità",
   std([1,2,3,4])/2,
   Math.sqrt(5/3)/2,
   1e-12
@@ -3332,13 +4762,17 @@ function runValidation(){
  test(
   "B-01 rettangolare",
   1/Math.sqrt(3),
-  1/Math.sqrt(3)
+  1/Math.sqrt(3),
+  1e-12
  );
 
 
  test(
   "GUM-01 combinazione indipendente",
-  Math.sqrt(.003**2+.004**2),
+  Math.sqrt(
+   .003**2+
+   .004**2
+  ),
   .005,
   1e-12
  );
@@ -3370,11 +4804,15 @@ function runValidation(){
 
  const u1=.001;
  const u2=.002;
+
  const df1=10;
  const df2=20;
 
  const uc=
-  Math.sqrt(u1*u1+u2*u2);
+  Math.sqrt(
+   u1*u1+
+   u2*u2
+  );
 
  const ve=
   uc**4/
@@ -3382,7 +4820,6 @@ function runValidation(){
    u1**4/df1+
    u2**4/df2
   );
-
 
  test(
   "GUM-04 Welch-Satterthwaite",
@@ -3397,9 +4834,10 @@ function runValidation(){
 
 
  test(
-  "GUM-05 U=k*uc",
+  "GUM-05 U=k·uc",
   2*uc,
-  2*uc
+  2*uc,
+  1e-12
  );
 
 
@@ -3411,53 +4849,57 @@ function runValidation(){
 
 
  test(
-  "MODEL-02 c downstream",
+  "MODEL-02 coefficiente downstream",
   -1,
   -1
  );
 
 
  test(
-  "MODEL-03 y=x",
+  "MODEL-03 modello y=x",
   10,
   10
  );
 
 
  test(
-  "STAT-03 doubling N",
-  1/Math.sqrt(20),
-  .22360679775,
-  1e-10
- );
-
-
- test(
-  "MODEL-04 ΔP modello",
+  "MODEL-04 modello ΔP",
   MODEL_META.pressure_drop.text,
   "y = P_upstream − P_downstream"
  );
 
 
- document.getElementById("vTotal")
-  .textContent=tests.length;
+ document
+ .getElementById("vTotal")
+ .textContent=
+ tests.length;
 
- document.getElementById("vPass")
-  .textContent=
-   tests.filter(t=>t.pass).length;
+ document
+ .getElementById("vPass")
+ .textContent=
+ tests.filter(
+  x=>x.pass
+ ).length;
 
- document.getElementById("vFail")
-  .textContent=
-   tests.filter(t=>!t.pass).length;
+ document
+ .getElementById("vFail")
+ .textContent=
+ tests.filter(
+  x=>!x.pass
+ ).length;
 
- document.getElementById("vStatus")
-  .textContent=
-   tests.every(t=>t.pass)
-    ?"PASS"
-    :"FAIL";
+ document
+ .getElementById("vStatus")
+ .textContent=
+ tests.every(
+  x=>x.pass
+ )
+ ?"PASS"
+ :"FAIL";
 
 
- document.getElementById("validationResult")
+ document
+ .getElementById("validationResult")
  .innerHTML=`
 
  <div class="table-wrap">
@@ -3467,35 +4909,49 @@ function runValidation(){
  <thead>
 
  <tr>
+
  <th>Test</th>
  <th>Esito</th>
  <th>Actual</th>
  <th>Expected</th>
+
  </tr>
 
  </thead>
 
  <tbody>
 
- ${tests.map(t=>`
+ ${
+  tests
+  .map(
+   t=>`
 
- <tr>
+   <tr>
 
- <td>${esc(t.name)}</td>
+   <td>${esc(t.name)}</td>
 
- <td>
- ${t.pass
-  ?"🟢 PASS"
-  :"🔴 FAIL"}
- </td>
+   <td>
+   ${
+    t.pass
+    ?"🟢 PASS"
+    :"🔴 FAIL"
+   }
+   </td>
 
- <td>${esc(fmtAny(t.actual))}</td>
+   <td>
+   ${esc(String(t.actual))}
+   </td>
 
- <td>${esc(fmtAny(t.expected))}</td>
+   <td>
+   ${esc(String(t.expected))}
+   </td>
 
- </tr>
+   </tr>
 
- `).join("")}
+  `
+  )
+  .join("")
+ }
 
  </tbody>
 
@@ -3505,239 +4961,20 @@ function runValidation(){
 
  <p class="note">
 
- Questi sono test interni del software;
- non costituiscono da soli una validazione
- secondo ISO/IEC 17025 o un'accreditazione.
+ Questi sono test interni del software.
+ Non costituiscono da soli una validazione
+ secondo ISO/IEC 17025 né un'accreditazione.
 
- </p>`;
+ </p>
 
-}
-
-
-function fmtAny(x){
-
- return typeof x==="string"
-  ?x
-  :(Number.isFinite(x)
-   ?String(x)
-   :String(x));
+ `;
 
 }
 
 
-/* =========================
-   PDF
-========================= */
-
-function generatePDF(){
-
- if(!lastAnalysis){
-
-  alert("Nessuna analisi disponibile.");
-  return;
-
- }
-
- const js=window.jspdf?.jsPDF;
-
- if(!js){
-
-  alert(
-   "Libreria PDF non disponibile. "+
-   "Controlla la connessione."
-  );
-
-  return;
-
- }
-
- const doc=new js();
-
- let y=18;
-
- const line=(txt,size=10)=>{
-
-  doc.setFontSize(size);
-
-  doc.text(String(txt),14,y);
-
-  y+=7;
-
-  if(y>280){
-
-   doc.addPage();
-
-   y=18;
-
-  }
-
- };
-
-
- line(
-  "METROLOGY UNCERTAINTY ANALYZER V7.2",
-  16
- );
-
- line(
-  `Verifica: ${
-   lastAnalysis.verificationId||"NON SALVATA"
-  }`
- );
-
- line(
-  `Master: ${lastAnalysis.masterId}`
- );
-
- line(
-  `Misurando: ${
-   lastAnalysis.measurandName
-  } [${lastAnalysis.unit}]`
- );
-
- line(
-  `Data: ${
-   new Date(
-    lastAnalysis.savedAt||
-    lastAnalysis.createdAt
-   ).toLocaleString("it-IT")
-  }`
- );
-
- line(
-  `Media: ${fmt(lastAnalysis.stats.mean)}`
- );
-
- line(
-  `Bias: ${fmt(lastAnalysis.bias)}`
- );
-
- line(
-  `uc: ${fmt(lastAnalysis.uc)}`
- );
-
- line(
-  `U: ${fmt(lastAnalysis.U)}
-   k: ${fmt(lastAnalysis.k,3)}
-   νeff: ${fmt(lastAnalysis.veff,2)}`
- );
-
- line(
-  `Stato: ${lastAnalysis.status}`,
-  12
- );
-
- line("");
-
- line(
-  "BUDGET DI INCERTEZZA",
-  13
- );
-
- lastAnalysis.components.forEach(c=>{
-
-  line(
-   `${c.name}: `+
-   `u=${fmt(c.u)} `+
-   `c=${fmt(c.c)} `+
-   `|cu|=${fmt(Math.abs(c.c*c.u))} `+
-   `df=${fmt(c.df,2)}`
-  );
-
- });
-
- line("");
-
- line(
-  "STATISTICHE",
-  13
- );
-
- line(
-  `N=${lastAnalysis.stats.n} `+
-  `s=${fmt(lastAnalysis.stats.std)} `+
-  `min=${fmt(lastAnalysis.stats.min)} `+
-  `max=${fmt(lastAnalysis.stats.max)} `+
-  `range=${fmt(lastAnalysis.stats.range)}`
- );
-
- doc.save(
-  `${lastAnalysis.verificationId||"analysis"}_`+
-  `${lastAnalysis.masterId}.pdf`
- );
-
-}
-
-
-/* =========================
-   RESET
-========================= */
-
-function resetNewVerification(){
-
- populateAnalysisMasters();
-
- document.getElementById("aMaster").value="";
-
- document.getElementById("aMeasurand").value="";
-
- document.getElementById("aUnit").value="";
-
- document.getElementById("aReference").value="";
-
- document.getElementById("aLimit").value="";
-
- document.getElementById("aValues").value="";
-
- document.getElementById("specificFields").innerHTML="";
-
- document.getElementById("influenceList").innerHTML="";
-
- document.getElementById("modelBox").innerHTML="";
-
- document.getElementById("correlations").innerHTML=
-  '<div class="empty">Nessuna correlazione inserita.</div>';
-
- correlations=[];
-
- lastAnalysis=null;
-
- document.getElementById("saveVerification")
-  .disabled=true;
-
- document.getElementById("generatePDF")
-  .disabled=true;
-
- document.getElementById("selectedMasterBanner")
-  .textContent=
-   "Nessun master selezionato. Vai in Master e premi “＋ Nuova verifica”.";
-
-}
-
-
-/* =========================
+/* =====================================================
    INIT
-========================= */
-
-document.getElementById("calculate")
- .addEventListener(
-  "click",
-  calculate
- );
-
-document.getElementById("saveVerification")
- .addEventListener(
-  "click",
-  saveVerification
- );
-
-document.getElementById("generatePDF")
- .addEventListener(
-  "click",
-  generatePDF
- );
-
-populateMeasurands();
+===================================================== */
 
 populateAnalysisMasters();
 
@@ -3749,7 +4986,7 @@ renderHistory();
 
 renderSpecificFields();
 
-renderInfluences();
+renderAIDataFields();
 
 renderModel();
 
