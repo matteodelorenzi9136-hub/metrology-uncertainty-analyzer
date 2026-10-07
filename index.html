@@ -5630,7 +5630,941 @@ renderModel();
 renderCorrelations();
 
 initPdfDrop();
+/* ============================================================
+   V7.3.5 — GESTIONE MASTER → VERIFICA
+   ============================================================ */
 
+(function(){
+
+/* ---------- STILE MASTER ---------- */
+
+const style=document.createElement("style");
+
+style.textContent=`
+
+.master-cards{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:14px;
+margin-top:15px;
+}
+
+.master-card{
+background:#0d1728;
+border:1px solid var(--line);
+border-radius:14px;
+padding:16px;
+cursor:pointer;
+transition:.15s;
+}
+
+.master-card:hover{
+border-color:var(--accent);
+transform:translateY(-1px);
+}
+
+.master-card-head{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+gap:10px;
+}
+
+.master-id{
+font-size:18px;
+font-weight:800;
+}
+
+.master-desc{
+color:var(--muted);
+margin-top:4px;
+}
+
+.master-card-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-top:16px;
+}
+
+.master-card-grid span{
+display:block;
+color:var(--muted);
+font-size:10px;
+text-transform:uppercase;
+}
+
+.master-card-grid strong{
+display:block;
+margin-top:4px;
+font-size:13px;
+}
+
+.master-card-actions{
+display:flex;
+gap:8px;
+margin-top:16px;
+flex-wrap:wrap;
+}
+
+.master-card-actions .btn{
+flex:1;
+}
+
+.master-detail{
+margin-top:18px;
+}
+
+.master-detail-head{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+gap:15px;
+flex-wrap:wrap;
+}
+
+.master-detail-title{
+font-size:21px;
+font-weight:800;
+}
+
+.master-detail-subtitle{
+color:var(--muted);
+margin-top:4px;
+}
+
+.master-verification{
+background:#0d1728;
+border:1px solid var(--line);
+border-radius:10px;
+padding:12px;
+margin-top:10px;
+}
+
+.master-verification:hover{
+border-color:var(--accent);
+}
+
+.master-verification-grid{
+display:grid;
+grid-template-columns:repeat(4,minmax(0,1fr));
+gap:10px;
+margin-top:10px;
+}
+
+.master-verification-grid span{
+display:block;
+color:var(--muted);
+font-size:10px;
+text-transform:uppercase;
+}
+
+.master-verification-grid strong{
+display:block;
+margin-top:3px;
+}
+
+.master-new-verification{
+margin-top:15px;
+}
+
+@media(max-width:700px){
+
+.master-cards{
+grid-template-columns:1fr;
+}
+
+.master-card-grid{
+grid-template-columns:1fr 1fr;
+}
+
+.master-verification-grid{
+grid-template-columns:1fr 1fr;
+}
+
+}
+
+@media(max-width:450px){
+
+.master-card-grid,
+.master-verification-grid{
+grid-template-columns:1fr;
+}
+
+}
+`;
+
+document.head.appendChild(style);
+
+
+/* ---------- CREAZIONE DETTAGLIO MASTER ---------- */
+
+function ensureMasterDetail(){
+
+let mastersPage=document.getElementById("masters");
+
+if(!mastersPage)return null;
+
+let detail=document.getElementById("masterDetail");
+
+if(!detail){
+
+detail=document.createElement("div");
+
+detail.id="masterDetail";
+detail.className="master-detail";
+
+mastersPage.appendChild(detail);
+
+}
+
+return detail;
+
+}
+
+
+/* ---------- APERTURA MASTER ---------- */
+
+window.openMaster=function(encodedId){
+
+const id=decodeURIComponent(encodedId);
+
+const master=masters.find(
+m=>m.id===id
+);
+
+if(!master){
+
+popup(
+"Master non trovato.",
+"Errore",
+"error"
+);
+
+return;
+
+}
+
+const detail=ensureMasterDetail();
+
+if(!detail)return;
+
+const verifications=
+history
+.filter(v=>v.masterId===master.id)
+.slice()
+.reverse();
+
+
+detail.innerHTML=`
+
+<div class="panel">
+
+<div class="master-detail-head">
+
+<div>
+
+<div class="master-detail-title">
+
+${esc(master.id)}
+
+</div>
+
+<div class="master-detail-subtitle">
+
+${esc(master.description||"Nessuna descrizione")}
+<br>
+
+${esc(master.measurandName||"")} ·
+${esc(master.machine||"—")}
+
+</div>
+
+</div>
+
+
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+
+<button
+class="btn"
+onclick="closeMasterDetail()">
+
+← Chiudi
+
+</button>
+
+
+<button
+class="btn primary"
+onclick="startVerification('${encodeURIComponent(master.id)}')">
+
+＋ Inserisci verifica
+
+</button>
+
+</div>
+
+</div>
+
+
+<div class="metric-grid" style="margin-top:18px">
+
+<div class="metric">
+
+<span class="label">
+Misurando
+</span>
+
+<b>
+${esc(master.measurandName||"—")}
+</b>
+
+</div>
+
+
+<div class="metric">
+
+<span class="label">
+Macchina
+</span>
+
+<b>
+${esc(master.machine||"—")}
+</b>
+
+</div>
+
+
+<div class="metric">
+
+<span class="label">
+Valore riferimento
+</span>
+
+<b>
+${fmt(master.reference)}
+${esc(master.unit||"")}
+</b>
+
+</div>
+
+
+<div class="metric">
+
+<span class="label">
+Limite
+</span>
+
+<b>
+${
+master.limit===null||
+master.limit===undefined||
+master.limit===""
+?"—"
+:
+fmt(master.limit)+" "+esc(master.unit||"")
+}
+</b>
+
+</div>
+
+</div>
+
+
+<div style="margin-top:22px">
+
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
+">
+
+<h3>
+Verifiche del master
+</h3>
+
+<span class="badge">
+
+${verifications.length}
+verifiche
+
+</span>
+
+</div>
+
+
+${
+verifications.length
+
+?
+
+verifications.map(
+v=>`
+
+<div
+class="master-verification"
+>
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+gap:10px;
+align-items:flex-start;
+flex-wrap:wrap;
+"
+>
+
+<div>
+
+<strong>
+${esc(v.verificationId||"Verifica")}
+</strong>
+
+<div class="note">
+
+${new Date(
+v.savedAt||v.createdAt
+).toLocaleString("it-IT")}
+
+</div>
+
+</div>
+
+
+<span class="badge ${
+v.status==="NOK"
+?"bad"
+:
+v.status==="OK"
+?""
+:
+"warn"
+}">
+
+${esc(v.status||"N/D")}
+
+</span>
+
+</div>
+
+
+<div class="master-verification-grid">
+
+<div>
+
+<span>
+Media
+</span>
+
+<strong>
+${fmt(v.stats?.mean)}
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+Incertezza U
+</span>
+
+<strong>
+${fmt(v.U)}
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+k
+</span>
+
+<strong>
+${fmt(v.k,3)}
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+N misure
+</span>
+
+<strong>
+${v.stats?.n||"—"}
+</strong>
+
+</div>
+
+</div>
+
+</div>
+
+`
+).join("")
+
+
+:
+
+`
+
+<div class="empty">
+
+Nessuna verifica ancora per questo master.
+
+<div class="master-new-verification">
+
+<button
+class="btn primary"
+onclick="startVerification('${encodeURIComponent(master.id)}')">
+
+＋ Inserisci la prima verifica
+
+</button>
+
+</div>
+
+</div>
+
+`
+
+}
+
+</div>
+
+</div>
+
+`;
+
+
+detail.style.display="block";
+
+detail.scrollIntoView({
+behavior:"smooth",
+block:"start"
+});
+
+};
+
+
+/* ---------- CHIUDI DETTAGLIO ---------- */
+
+window.closeMasterDetail=function(){
+
+const detail=
+document.getElementById("masterDetail");
+
+if(detail){
+
+detail.style.display="none";
+
+detail.innerHTML="";
+
+}
+
+};
+
+
+/* ---------- NUOVA VERSIONE DI RENDER MASTER ---------- */
+
+window.renderMasters=function(){
+
+const q=
+(
+document.getElementById("masterSearch")?.value||
+""
+)
+.toLowerCase();
+
+
+const rows=
+masters.filter(
+m=>
+`${m.id} ${m.description||""} ${m.measurandName||""} ${m.machine||""}`
+.toLowerCase()
+.includes(q)
+);
+
+
+const box=
+document.getElementById("masterTable");
+
+
+if(!box)return;
+
+
+const detail=
+ensureMasterDetail();
+
+if(detail){
+
+detail.style.display="none";
+detail.innerHTML="";
+
+}
+
+
+if(!rows.length){
+
+box.innerHTML=`
+
+<div class="empty">
+
+Nessun master inserito.
+
+<br><br>
+
+<button
+class="btn primary"
+onclick="openMasterModal()">
+
+＋ Inserisci il primo master
+
+</button>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+box.innerHTML=`
+
+<div class="master-cards">
+
+${
+rows.map(
+m=>{
+
+const n=
+history.filter(
+v=>v.masterId===m.id
+).length;
+
+
+return `
+
+<div
+class="master-card"
+onclick="
+openMaster('${encodeURIComponent(m.id)}')
+"
+>
+
+
+<div class="master-card-head">
+
+<div>
+
+<div class="master-id">
+
+${esc(m.id)}
+
+</div>
+
+<div class="master-desc">
+
+${esc(
+m.description||
+"Nessuna descrizione"
+)}
+
+</div>
+
+</div>
+
+
+<span class="badge">
+
+${n}
+${n===1?"verifica":"verifiche"}
+
+</span>
+
+</div>
+
+
+<div class="master-card-grid">
+
+
+<div>
+
+<span>
+Misurando
+</span>
+
+<strong>
+${esc(m.measurandName||"—")}
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+Macchina
+</span>
+
+<strong>
+${esc(m.machine||"—")}
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+Riferimento
+</span>
+
+<strong>
+${fmt(m.reference)}
+${esc(m.unit||"")}
+</strong>
+
+</div>
+
+
+<div>
+
+<span>
+Limite
+</span>
+
+<strong>
+
+${
+m.limit===null||
+m.limit===undefined||
+m.limit===""
+?"—"
+:
+fmt(m.limit)+" "+esc(m.unit||"")
+}
+
+</strong>
+
+</div>
+
+
+</div>
+
+
+<div
+class="master-card-actions"
+onclick="event.stopPropagation()"
+>
+
+
+<button
+class="btn"
+onclick="
+openMaster('${encodeURIComponent(m.id)}')
+">
+
+Apri master
+
+</button>
+
+
+<button
+class="btn primary"
+onclick="
+startVerification('${encodeURIComponent(m.id)}')
+">
+
+＋ Nuova verifica
+
+</button>
+
+
+</div>
+
+
+</div>
+
+`;
+
+}
+).join("")
+
+}
+
+</div>
+
+`;
+
+};
+
+
+/* ---------- START VERIFICA ---------- */
+
+window.startVerification=function(encodedId){
+
+const id=
+decodeURIComponent(encodedId);
+
+
+const master=
+masters.find(
+m=>m.id===id
+);
+
+
+if(!master){
+
+popup(
+"Master non trovato.",
+"Errore",
+"error"
+);
+
+return;
+
+}
+
+
+openPage("analysis");
+
+loadMaster(master);
+
+
+/*
+   IMPORTANTE:
+   quando entri nella verifica il master
+   viene già selezionato.
+*/
+
+const banner=
+document.getElementById(
+"selectedMasterBanner"
+);
+
+
+if(banner){
+
+banner.innerHTML=`
+
+<strong>
+Master selezionato:
+</strong>
+
+${esc(master.id)}
+
+—
+
+${esc(master.description||"")}
+
+<br>
+
+<span class="note">
+
+${esc(master.measurandName||"")}
+
+·
+
+${esc(master.machine||"")}
+
+</span>
+
+`;
+
+}
+
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+};
+
+
+/* ---------- AGGIORNA LA PAGINA MASTER ---------- */
+
+const oldSaveMaster=window.saveMaster;
+
+if(typeof oldSaveMaster==="function"){
+
+/*
+   Non sostituiamo il salvataggio:
+   dopo il salvataggio aggiorniamo la nuova UI.
+*/
+
+window.saveMaster=function(){
+
+oldSaveMaster();
+
+setTimeout(
+()=>{
+renderMasters();
+refreshDashboard();
+},
+50
+);
+
+};
+
+}
+
+
+/* ---------- VERSIONE ---------- */
+
+const version=
+document.querySelector(".version");
+
+if(version)
+version.textContent="V7.3.5";
+
+
+/* ---------- TESTO AI ---------- */
+
+document
+.querySelectorAll(
+".ai-box p"
+)
+.forEach(
+p=>{
+if(
+p.textContent.includes("V7.3.3")||
+p.textContent.includes("V7.3.4")
+){
+
+p.textContent=
+p.textContent.replace(
+/V7\.3\.[34]/g,
+"V7.3.5"
+);
+
+}
+}
+);
+
+
+/* ---------- RENDER INIZIALE ---------- */
+
+setTimeout(
+()=>{
+renderMasters();
+refreshDashboard();
+},
+100
+);
+
+})();
 </script>
 
 </body>
